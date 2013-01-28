@@ -1,0 +1,1 @@
+test/javascripts/normal.js
