@@ -27,3 +27,22 @@ func TestReadingNormalAssets(t *testing.T) {
 	content = ReadAsset("/assets/not/exists/normal.css")
 	assert.Equal(t, "", content)
 }
+
+func TestReadingAssetsWithRequire(t *testing.T) {
+	Config.AssetsPath = "test"
+	var content string
+
+	content = ReadAsset("/assets/require.js")
+	assert.Equal(t, `normal.js
+sub/normal.js
+sub/require.js
+require.js
+`, content)
+
+	content = ReadAsset("/assets/require.css")
+	assert.Equal(t, `normal.css
+sub/normal.css
+sub/require.css
+require.css
+`, content)
+}
