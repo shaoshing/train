@@ -1,1 +1,1 @@
-test/javascripts/normal.js
+normal.js
