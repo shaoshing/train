@@ -1,6 +1,7 @@
 package train
 
 import (
+	"bytes"
 	"io/ioutil"
 	"path"
 	"regexp"
@@ -9,25 +10,26 @@ import (
 
 func ReadAsset(assetUrl string) string {
 	// TODO: buffer
-	data := ""
+	data := bytes.NewBuffer([]byte(""))
 
 	fileExt := path.Ext(assetUrl)
 	switch fileExt {
 	case ".js":
 		FindAssetsFunc(assetUrl, func(filePath string, content string) {
-			data += content
+			data.Write([]byte(content + "\n"))
 		})
 	case ".css":
 		FindAssetsFunc(assetUrl, func(filePath string, content string) {
-			data += content
+			data.Write([]byte(content + "\n"))
 		})
 	case "":
 
 	default:
-		data = ReadStaticAsset(assetUrl)
+		data.Write([]byte(ReadStaticAsset(assetUrl)))
 	}
 
-	return string(data)
+	// correct
+	return string(data.Bytes())
 }
 
 var patterns = map[string](map[string]*regexp.Regexp){
