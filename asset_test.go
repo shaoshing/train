@@ -46,3 +46,14 @@ sub/require.css
 require.css
 `, content)
 }
+
+func TestReadingStaticAssets(t *testing.T) {
+	Config.AssetsPath = "test"
+	var content string
+
+	content = ReadAsset("/assets/static.txt")
+	assert.Equal(t, "static.txt\n", content)
+
+	content = ReadAsset("/assets/dummy.png")
+	assert.Equal(t, "dummy\n", content)
+}

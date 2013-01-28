@@ -10,9 +10,23 @@ import (
 func ReadAsset(assetUrl string) string {
 	// TODO: buffer
 	data := ""
-	FindAssetsFunc(assetUrl, func(filePath string, content string) {
-		data += content
-	})
+
+	fileExt := path.Ext(assetUrl)
+	switch fileExt {
+	case ".js":
+		FindAssetsFunc(assetUrl, func(filePath string, content string) {
+			data += content
+		})
+	case ".css":
+		FindAssetsFunc(assetUrl, func(filePath string, content string) {
+			data += content
+		})
+	case "":
+
+	default:
+		data = ReadStaticAsset(assetUrl)
+	}
+
 	return string(data)
 }
 
@@ -70,4 +84,17 @@ func ResolvePath(assetUrl string) string {
 
 	filePath := string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(strings.Replace(assetUrl, Config.AssetsURL, "", 1)), []byte("/")))
 	return Config.AssetsPath + assetFolder + filePath
+}
+
+func ReadStaticAsset(assetUrl string) string {
+	assetUrl = strings.Replace(assetUrl, Config.AssetsURL, "", 1)
+	for _, assetPath := range []string{"/", "/javascripts/", "/stylesheets/", "/images/"} {
+		filePath := Config.AssetsPath + assetPath + assetUrl
+		filePath = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(filePath), []byte("/")))
+		content, err := ioutil.ReadFile(filePath)
+		if err == nil {
+			return string(content)
+		}
+	}
+	return ""
 }
