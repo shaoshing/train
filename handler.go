@@ -1,12 +1,14 @@
 package train
 
 import (
-	"fmt"
+	"io"
 	"net/http"
+	"strings"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	content := ReadAsset(r.URL.Path)
-	fmt.Fprintf(w, content)
+	reader := strings.NewReader(content)
+	io.Copy(w, reader)
 	return
 }
