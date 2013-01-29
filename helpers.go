@@ -2,8 +2,11 @@ package train
 
 import (
 	"html/template"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type Helpers struct{}
@@ -15,40 +18,39 @@ const (
 
 func (this Helpers) JavascriptIncludeTag(name string) template.HTML {
 	assetUrl := "javascripts/" + name + ".js"
-	paths := resolveAssetUrls(assetUrl)
-	return generateRawHtml(paths, JavascriptTemplate)
+	paths, mtimes := resolveAssetUrls(assetUrl)
+	return generateRawHtml(paths, mtimes, JavascriptTemplate)
 }
 
 func (this Helpers) StylesheetIncludeTag(name string) template.HTML {
 	assetUrl := "stylesheets/" + name + ".css"
-	paths := resolveAssetUrls(assetUrl)
-	return generateRawHtml(paths, StylesheetTemplate)
+	paths, mtimes := resolveAssetUrls(assetUrl)
+	return generateRawHtml(paths, mtimes, StylesheetTemplate)
 }
 
-func resolveAssetUrls(assetUrl string) []string {
+func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 	paths := FindAssetsFunc(assetUrl, func(filePath string, content string) {})
 	if Config.BundleAssets {
 		paths = paths[len(paths)-1:]
 	}
 
-	urls := make([]string, len(paths))
-	for i, path := range paths {
+	for _, path := range paths {
+		info, _ := os.Stat(path)
+		mtimes = append(mtimes, info.ModTime())
 		assetUrl := strings.Replace(path, Config.AssetsPath, Config.AssetsUrl, 1)
 		assetUrl = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(assetUrl), []byte("/")))
-		urls[i] = assetUrl
+		urls = append(urls, assetUrl)
 	}
-	return urls
+	return
 }
 
 var pathReg = regexp.MustCompile(`\{path\}`)
 
-func generateRawHtml(paths []string, html string) template.HTML {
-	result := ""
-	for i, path := range paths {
-		result += string(pathReg.ReplaceAll([]byte(html), []byte(path)))
-		if i != len(paths)-1 {
-			result += "\n"
-		}
+func generateRawHtml(urls []string, mtimes []time.Time, html string) template.HTML {
+	htmls := []string{}
+	for i, url := range urls {
+		murl := url + "?" + strconv.FormatInt(mtimes[i].Unix(), 10)
+		htmls = append(htmls, string(pathReg.ReplaceAll([]byte(html), []byte(murl))))
 	}
-	return template.HTML(result)
+	return template.HTML(strings.Join(htmls, "\n"))
 }
