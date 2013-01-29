@@ -30,7 +30,6 @@ func assertGet(t *testing.T, url, body string) {
 }
 
 func TestHandler(t *testing.T) {
-	Config.AssetsPath = "test"
 	Config.BundleAssets = true
 
 	assertGet(t, "/assets/static.txt", "static.txt\n")

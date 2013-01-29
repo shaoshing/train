@@ -6,7 +6,6 @@ import (
 )
 
 func TestReadingNormalAssets(t *testing.T) {
-	Config.AssetsPath = "test"
 	var content string
 
 	content = ReadAsset("/assets/javascripts/normal.js")
@@ -29,7 +28,6 @@ func TestReadingNormalAssets(t *testing.T) {
 }
 
 func TestReadingAssetsWithRequire(t *testing.T) {
-	Config.AssetsPath = "test"
 	Config.BundleAssets = true
 	var content string
 
@@ -64,7 +62,6 @@ require.css
 }
 
 func TestReadingStaticAssets(t *testing.T) {
-	Config.AssetsPath = "test"
 	var content string
 
 	content = ReadAsset("/assets/static.txt")

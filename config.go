@@ -7,7 +7,7 @@ type config struct {
 }
 
 var Config config = config{
-	AssetsPath:   "public",
+	AssetsPath:   "assets",
 	AssetsUrl:    "/assets",
 	BundleAssets: false,
 }

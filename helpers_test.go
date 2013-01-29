@@ -10,7 +10,6 @@ import (
 )
 
 func TestIncludeTags(t *testing.T) {
-	Config.AssetsPath = "test"
 	Config.BundleAssets = false
 	now := time.Now()
 	stamp := strconv.FormatInt(now.Unix(), 10)
