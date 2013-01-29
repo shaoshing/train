@@ -58,6 +58,7 @@ func FindAssetsFunc(assetUrl string, found func(filePath string, content string)
 		content = patterns[fileExt]["head"].ReplaceAll(content, []byte(""))
 
 		for _, line := range strings.Split(head, "\n") {
+			// TODO: test match before reading files to avoid "test/*.css"
 			assetUrl := patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte(""))
 
 			if len(assetUrl) == 0 {
@@ -75,28 +76,18 @@ func FindAssetsFunc(assetUrl string, found func(filePath string, content string)
 }
 
 func ResolvePath(assetUrl string) string {
-	fileExt := path.Ext(assetUrl)
-	var assetFolder string
-	switch fileExt {
-	case ".js":
-		assetFolder = "/javascripts/"
-	case ".css":
-		assetFolder = "/stylesheets/"
-	}
+	filePath := string(strings.Replace(assetUrl, Config.AssetsURL, "", 1))
+	result := Config.AssetsPath + "/" + filePath
+	result = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(result), []byte("/")))
 
-	filePath := string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(strings.Replace(assetUrl, Config.AssetsURL, "", 1)), []byte("/")))
-	return Config.AssetsPath + assetFolder + filePath
+	return result
 }
 
 func ReadStaticAsset(assetUrl string) string {
-	assetUrl = strings.Replace(assetUrl, Config.AssetsURL, "", 1)
-	for _, assetPath := range []string{"/", "/javascripts/", "/stylesheets/", "/images/"} {
-		filePath := Config.AssetsPath + assetPath + assetUrl
-		filePath = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(filePath), []byte("/")))
-		content, err := ioutil.ReadFile(filePath)
-		if err == nil {
-			return string(content)
-		}
+	filePath := ResolvePath(assetUrl)
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return ""
 	}
-	return ""
+	return string(content)
 }

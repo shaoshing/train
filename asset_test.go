@@ -9,19 +9,19 @@ func TestReadingNormalAssets(t *testing.T) {
 	Config.AssetsPath = "test"
 	var content string
 
-	content = ReadAsset("/assets/normal.js")
+	content = ReadAsset("/assets/javascripts/normal.js")
 	assert.Equal(t, "normal.js\n\n", content)
 
-	content = ReadAsset("/assets/sub/normal.js")
+	content = ReadAsset("/assets/javascripts/sub/normal.js")
 	assert.Equal(t, "sub/normal.js\n\n", content)
 
 	content = ReadAsset("/assets/not/exists/normal.js")
 	assert.Equal(t, "", content)
 
-	content = ReadAsset("/assets/normal.css")
+	content = ReadAsset("/assets/stylesheets/normal.css")
 	assert.Equal(t, "normal.css\n\n", content)
 
-	content = ReadAsset("/assets/sub/normal.css")
+	content = ReadAsset("/assets/stylesheets/sub/normal.css")
 	assert.Equal(t, "sub/normal.css\n\n", content)
 
 	content = ReadAsset("/assets/not/exists/normal.css")
@@ -32,7 +32,7 @@ func TestReadingAssetsWithRequire(t *testing.T) {
 	Config.AssetsPath = "test"
 	var content string
 
-	content = ReadAsset("/assets/require.js")
+	content = ReadAsset("/assets/javascripts/require.js")
 	assert.Equal(t, `normal.js
 
 sub/normal.js
@@ -43,7 +43,7 @@ require.js
 
 `, content)
 
-	content = ReadAsset("/assets/require.css")
+	content = ReadAsset("/assets/stylesheets/require.css")
 	assert.Equal(t, `normal.css
 
 sub/normal.css
@@ -62,6 +62,6 @@ func TestReadingStaticAssets(t *testing.T) {
 	content = ReadAsset("/assets/static.txt")
 	assert.Equal(t, "static.txt\n", content)
 
-	content = ReadAsset("/assets/dummy.png")
+	content = ReadAsset("/assets/images/dummy.png")
 	assert.Equal(t, "dummy\n", content)
 }

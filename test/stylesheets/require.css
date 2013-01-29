@@ -1,5 +1,5 @@
 /*
- *= require normal
- *= require sub/require
+ *= require stylesheets/normal
+ *= require stylesheets/sub/require
  */
 require.css

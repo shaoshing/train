@@ -1,3 +1,3 @@
-//= require normal
-//= require sub/require
+//= require javascripts/normal
+//= require javascripts/sub/require
 require.js
