@@ -46,18 +46,19 @@ var patterns = map[string](map[string]*regexp.Regexp){
 func FindAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string) {
 	filePath := ResolvePath(assetUrl)
 
-	content, err := ioutil.ReadFile(filePath)
+	b_content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return filePaths
 	}
+	content := string(b_content)
 
 	fileExt := path.Ext(assetUrl)
-	head := string(patterns[fileExt]["head"].Find(content))
+	header := FindDirectivesHeader(&content, fileExt)
 
-	if len(head) != 0 {
-		content = patterns[fileExt]["head"].ReplaceAll(content, []byte(""))
+	if len(header) != 0 {
+		content = strings.Replace(content, header, "", 1)
 
-		for _, line := range strings.Split(head, "\n") {
+		for _, line := range strings.Split(header, "\n") {
 			// TODO: test match before reading files to avoid "test/*.css"
 			assetUrl := patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte(""))
 
@@ -70,9 +71,13 @@ func FindAssetsFunc(assetUrl string, found func(filePath string, content string)
 		}
 	}
 
-	found(filePath, string(content))
+	found(filePath, content)
 
 	return append(filePaths, filePath)
+}
+
+func FindDirectivesHeader(content *string, fileExt string) string {
+	return string(patterns[fileExt]["head"].Find([]byte(*content)))
 }
 
 func ResolvePath(assetUrl string) string {
