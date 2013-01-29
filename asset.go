@@ -15,14 +15,12 @@ func ReadAsset(assetUrl string) string {
 	if Config.BundleAssets {
 		fileExt := path.Ext(assetUrl)
 		switch fileExt {
-		case ".js":
+		case ".js", ".css":
+			contents := []string{}
 			FindAssetsFunc(assetUrl, func(filePath string, content string) {
-				data.Write([]byte(content + "\n"))
+				contents = append(contents, content)
 			})
-		case ".css":
-			FindAssetsFunc(assetUrl, func(filePath string, content string) {
-				data.Write([]byte(content + "\n"))
-			})
+			data.Write([]byte(strings.Join(contents, "\n")))
 		case "":
 
 		default:

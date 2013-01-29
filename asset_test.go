@@ -41,7 +41,6 @@ sub/normal.js
 sub/require.js
 
 require.js
-
 `, content)
 
 	content = ReadAsset("/assets/stylesheets/require.css")
@@ -52,7 +51,6 @@ sub/normal.css
 sub/require.css
 
 require.css
-
 `, content)
 
 	Config.BundleAssets = false
