@@ -76,7 +76,7 @@ func FindAssetsFunc(assetUrl string, found func(filePath string, content string)
 }
 
 func ResolvePath(assetUrl string) string {
-	filePath := string(strings.Replace(assetUrl, Config.AssetsURL, "", 1))
+	filePath := string(strings.Replace(assetUrl, Config.AssetsUrl, "", 1))
 	result := Config.AssetsPath + "/" + filePath
 	result = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(result), []byte("/")))
 

@@ -1,13 +1,13 @@
 package train
 
 type config struct {
-	AssetsPath    string
-	AssetsURL     string
-	PackageAssets bool
+	AssetsPath   string
+	AssetsUrl    string
+	BundleAssets bool
 }
 
 var Config config = config{
-	AssetsPath:    "public",
-	AssetsURL:     "/assets",
-	PackageAssets: false,
+	AssetsPath:   "public",
+	AssetsUrl:    "/assets",
+	BundleAssets: false,
 }
