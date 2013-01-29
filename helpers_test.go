@@ -26,4 +26,6 @@ func TestIncludeTags(t *testing.T) {
 	Config.BundleAssets = true
 	assert.Equal(t, `<script src="/assets/javascripts/require.js"></script>`, string(helpers.JavascriptIncludeTag("require")))
 	assert.Equal(t, `<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require.css">`, string(helpers.StylesheetIncludeTag("require")))
+
+	Config.BundleAssets = false
 }

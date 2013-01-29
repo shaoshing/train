@@ -12,23 +12,25 @@ func ReadAsset(assetUrl string) string {
 	// TODO: buffer
 	data := bytes.NewBuffer([]byte(""))
 
-	fileExt := path.Ext(assetUrl)
-	switch fileExt {
-	case ".js":
-		FindAssetsFunc(assetUrl, func(filePath string, content string) {
-			data.Write([]byte(content + "\n"))
-		})
-	case ".css":
-		FindAssetsFunc(assetUrl, func(filePath string, content string) {
-			data.Write([]byte(content + "\n"))
-		})
-	case "":
+	if Config.BundleAssets {
+		fileExt := path.Ext(assetUrl)
+		switch fileExt {
+		case ".js":
+			FindAssetsFunc(assetUrl, func(filePath string, content string) {
+				data.Write([]byte(content + "\n"))
+			})
+		case ".css":
+			FindAssetsFunc(assetUrl, func(filePath string, content string) {
+				data.Write([]byte(content + "\n"))
+			})
+		case "":
 
-	default:
+		default:
+			data.Write([]byte(ReadStaticAsset(assetUrl)))
+		}
+	} else {
 		data.Write([]byte(ReadStaticAsset(assetUrl)))
 	}
-
-	// correct
 	return string(data.Bytes())
 }
 
