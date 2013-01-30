@@ -3,6 +3,7 @@ package train
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"path"
 	"regexp"
@@ -12,7 +13,7 @@ import (
 func ReadAsset(assetUrl string) (result string, err error) {
 	fileExt := path.Ext(assetUrl)
 	if fileExt != ".js" && fileExt != ".css" {
-		err = errors.New("Can only read from js and css assets.")
+		err = errors.New("Unsupported Asset: " + assetUrl)
 		return
 	}
 
@@ -47,12 +48,11 @@ var patterns = map[string](map[string]*regexp.Regexp){
 func ReadAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
 	filePath := ResolvePath(assetUrl)
 
-	var b_content []byte
-	b_content, err = ioutil.ReadFile(filePath)
+	var content string
+	content, err = ReadRawAsset(assetUrl)
 	if err != nil {
 		return
 	}
-	content := string(b_content)
 
 	fileExt := path.Ext(assetUrl)
 	header := FindDirectivesHeader(&content, fileExt)
@@ -65,15 +65,15 @@ func ReadAssetsFunc(assetUrl string, found func(filePath string, content string)
 				continue
 			}
 
-			assetUrl := patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte(""))
-
-			if len(assetUrl) == 0 {
+			requiredAssetUrl := patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte(""))
+			if len(requiredAssetUrl) == 0 {
 				continue
 			}
 
 			var paths []string
-			paths, err = ReadAssetsFunc(string(assetUrl)+fileExt, found)
+			paths, err = ReadAssetsFunc(string(requiredAssetUrl)+fileExt, found)
 			if err != nil {
+				err = errors.New(fmt.Sprintf("%s\n--- required by %s", err.Error(), assetUrl))
 				return
 			}
 
@@ -100,9 +100,11 @@ func ResolvePath(assetUrl string) string {
 func ReadRawAsset(assetUrl string) (result string, err error) {
 	filePath := ResolvePath(assetUrl)
 	content, err := ioutil.ReadFile(filePath)
-	if err == nil {
-		result = string(content)
+	if err != nil {
+		err = errors.New("Asset Not Found: " + assetUrl)
+		return
 	}
+	result = string(content)
 
 	return
 }

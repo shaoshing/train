@@ -16,7 +16,7 @@ func TestReadingNormalAssets(t *testing.T) {
 	assert.Equal(t, "sub/normal.js\n", content)
 
 	_, err = ReadAsset("/assets/not/exists/normal.js")
-	assert.Equal(t, true, err != nil)
+	assert.Equal(t, "Asset Not Found: /assets/not/exists/normal.js", err.Error())
 
 	content, _ = ReadAsset("/assets/stylesheets/normal.css")
 	assert.Equal(t, "normal.css\n", content)
@@ -25,15 +25,16 @@ func TestReadingNormalAssets(t *testing.T) {
 	assert.Equal(t, "sub/normal.css\n", content)
 
 	_, err = ReadAsset("/assets/not/exists/normal.css")
-	assert.Equal(t, true, err != nil)
+	assert.Equal(t, "Asset Not Found: /assets/not/exists/normal.css", err.Error())
 
 	_, err = ReadAsset("/assets/static.txt")
-	assert.Equal(t, true, err != nil)
+	assert.Equal(t, "Unsupported Asset: /assets/static.txt", err.Error())
 }
 
 func TestReadingAssetsWithRequire(t *testing.T) {
 	Config.BundleAssets = true
 	var content string
+	var err error
 
 	content, _ = ReadAsset("/assets/javascripts/require.js")
 	assert.Equal(t, `normal.js
@@ -54,6 +55,15 @@ sub/require.css
 
 require.css
 `, content)
+
+	_, err = ReadAsset("/assets/javascripts/error.js")
+	assert.Equal(t, `Asset Not Found: not/found.js
+--- required by /assets/javascripts/error.js`, err.Error())
+
+	_, err = ReadAsset("/assets/javascripts/errors.js")
+	assert.Equal(t, `Asset Not Found: not/found.js
+--- required by javascripts/error.js
+--- required by /assets/javascripts/errors.js`, err.Error())
 
 	Config.BundleAssets = false
 	content, _ = ReadAsset("/assets/stylesheets/require.css")
