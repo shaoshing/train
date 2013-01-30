@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os/exec"
 	"strings"
 	"testing"
 )
@@ -57,4 +58,11 @@ sub/require.css
 
 require.css
 `, "text/css")
+}
+
+func TestBundledAssets(t *testing.T) {
+	exec.Command("cp", "-rf", "assets/public", "./").Run()
+	defer exec.Command("rm", "-rf", "public").Run()
+
+	assertGet(t, "/assets/app.js", "app.js\n", "application/javascript")
 }

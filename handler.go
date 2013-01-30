@@ -3,20 +3,40 @@ package train
 import (
 	"io"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 )
+
+var assetServer *http.Handler
+var publicAssetServer *http.Handler
+
+func Handler(w http.ResponseWriter, r *http.Request) {
+	setupFileServer()
+
+	if hasPublicAssets() {
+		servePublicAssets(w, r)
+	} else {
+		serveAssets(w, r)
+	}
+	return
+}
+
+func hasPublicAssets() bool {
+	_, err := os.Stat("public" + Config.AssetsUrl)
+	return err == nil
+}
+
+func servePublicAssets(w http.ResponseWriter, r *http.Request) {
+	(*publicAssetServer).ServeHTTP(w, r)
+}
 
 var contentTypes = map[string]string{
 	".js":  "application/javascript",
 	".css": "text/css",
 }
 
-var assetServer *http.Handler
-
-func Handler(w http.ResponseWriter, r *http.Request) {
-	setupFileServer()
-
+func serveAssets(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	ext := path.Ext(url)
 
@@ -29,12 +49,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	default:
 		(*assetServer).ServeHTTP(w, r)
 	}
-	return
 }
 
 func setupFileServer() {
 	if assetServer == nil {
-		server := http.FileServer(http.Dir(Config.AssetsPath + "/../"))
+		server := http.FileServer(http.Dir(Config.AssetsPath + "/.."))
 		assetServer = &server
+	}
+	if publicAssetServer == nil {
+		server := http.FileServer(http.Dir("public"))
+		publicAssetServer = &server
 	}
 }
