@@ -42,8 +42,8 @@ func serveAssets(w http.ResponseWriter, r *http.Request) {
 
 	switch ext {
 	case ".js", ".css":
-		content := ReadAsset(url)
-		if len(content) == 0 {
+		content, err := ReadAsset(url)
+		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.Header().Set("Content-Type", contentTypes[ext])

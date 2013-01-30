@@ -2,33 +2,35 @@ package train
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"path"
 	"regexp"
 	"strings"
 )
 
-func ReadAsset(assetUrl string) string {
-	data := bytes.NewBuffer([]byte(""))
+func ReadAsset(assetUrl string) (result string, err error) {
+	fileExt := path.Ext(assetUrl)
+	if fileExt != ".js" && fileExt != ".css" {
+		err = errors.New("Can only read from js and css assets.")
+		return
+	}
 
 	if Config.BundleAssets {
-		fileExt := path.Ext(assetUrl)
-		switch fileExt {
-		case ".js", ".css":
-			contents := []string{}
-			FindAssetsFunc(assetUrl, func(filePath string, content string) {
-				contents = append(contents, content)
-			})
-			data.Write([]byte(strings.Join(contents, "\n")))
-		case "":
-
-		default:
-			data.Write([]byte(ReadStaticAsset(assetUrl)))
+		data := bytes.NewBuffer([]byte(""))
+		contents := []string{}
+		_, err = FindAssetsFunc(assetUrl, func(filePath string, content string) {
+			contents = append(contents, content)
+		})
+		if err != nil {
+			return
 		}
+		data.Write([]byte(strings.Join(contents, "\n")))
+		result = string(data.Bytes())
 	} else {
-		data.Write([]byte(ReadStaticAsset(assetUrl)))
+		result, err = ReadRawAsset(assetUrl)
 	}
-	return string(data.Bytes())
+	return
 }
 
 var patterns = map[string](map[string]*regexp.Regexp){
@@ -42,12 +44,13 @@ var patterns = map[string](map[string]*regexp.Regexp){
 	},
 }
 
-func FindAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string) {
+func FindAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
 	filePath := ResolvePath(assetUrl)
 
-	b_content, err := ioutil.ReadFile(filePath)
+	var b_content []byte
+	b_content, err = ioutil.ReadFile(filePath)
 	if err != nil {
-		return filePaths
+		return
 	}
 	content := string(b_content)
 
@@ -58,21 +61,29 @@ func FindAssetsFunc(assetUrl string, found func(filePath string, content string)
 		content = strings.Replace(content, header, "", 1)
 
 		for _, line := range strings.Split(header, "\n") {
-			// TODO: test match before reading files to avoid "test/*.css"
+			if !patterns[fileExt]["require"].Match([]byte(line)) {
+				continue
+			}
+
 			assetUrl := patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte(""))
 
 			if len(assetUrl) == 0 {
 				continue
 			}
 
-			paths := FindAssetsFunc(string(assetUrl)+fileExt, found)
+			var paths []string
+			paths, err = FindAssetsFunc(string(assetUrl)+fileExt, found)
+			if err != nil {
+				return
+			}
+
 			filePaths = append(filePaths, paths...)
 		}
 	}
 
 	found(filePath, content)
-
-	return append(filePaths, filePath)
+	filePaths = append(filePaths, filePath)
+	return
 }
 
 func FindDirectivesHeader(content *string, fileExt string) string {
@@ -86,11 +97,12 @@ func ResolvePath(assetUrl string) string {
 	return result
 }
 
-func ReadStaticAsset(assetUrl string) string {
+func ReadRawAsset(assetUrl string) (result string, err error) {
 	filePath := ResolvePath(assetUrl)
 	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return ""
+	if err == nil {
+		result = string(content)
 	}
-	return string(content)
+
+	return
 }
