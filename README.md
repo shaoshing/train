@@ -24,8 +24,8 @@
 
     layout := Layout{Train: train.Helpers{}}
     html := `
-    {{.Layout.Train.JavascriptIncludeTag "app"}}
-    {{.Layout.Train.StylesheetIncludeTag "app"}}
+    {{.Layout.Train.JavascriptTag "app"}}
+    {{.Layout.Train.StylesheetTag "app"}}
     `
 
     tmpl, _ := template.New("").Parse(html)
