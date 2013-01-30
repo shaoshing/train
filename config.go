@@ -7,7 +7,10 @@ type config struct {
 }
 
 var Config config = config{
-	AssetsPath:   "assets",
-	AssetsUrl:    "/assets",
-	BundleAssets: false,
+	AssetsPath: "assets",
+	AssetsUrl:  "/assets",
+}
+
+func init() {
+	Config.BundleAssets = HasPublicAssets()
 }

@@ -15,7 +15,7 @@ var publicAssetServer *http.Handler
 func Handler(w http.ResponseWriter, r *http.Request) {
 	setupFileServer()
 
-	if hasPublicAssets() {
+	if HasPublicAssets() {
 		servePublicAssets(w, r)
 	} else {
 		serveAssets(w, r)
@@ -23,7 +23,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func hasPublicAssets() bool {
+func HasPublicAssets() bool {
 	_, err := os.Stat("public" + Config.AssetsUrl)
 	return err == nil
 }
