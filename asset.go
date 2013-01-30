@@ -9,7 +9,6 @@ import (
 )
 
 func ReadAsset(assetUrl string) string {
-	// TODO: buffer
 	data := bytes.NewBuffer([]byte(""))
 
 	if Config.BundleAssets {
