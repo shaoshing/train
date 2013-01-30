@@ -21,6 +21,7 @@ func main() {
 }
 
 func removeAssets() {
+	fmt.Println("-> clean bundled assets")
 	err := exec.Command("rm", "-rf", "public"+train.Config.AssetsUrl).Run()
 	if err != nil {
 		panic(err)
@@ -28,6 +29,7 @@ func removeAssets() {
 }
 
 func copyAssets() {
+	fmt.Println("-> copy assets from", train.Config.AssetsPath)
 	err := exec.Command("cp", "-rf", train.Config.AssetsPath, "public"+train.Config.AssetsUrl).Run()
 	if err != nil {
 		panic(err)
@@ -35,6 +37,7 @@ func copyAssets() {
 }
 
 func bundleAssets() {
+	fmt.Println("-> bundle assets with require directive")
 	train.Config.BundleAssets = true
 	publicAssetPath := "public" + train.Config.AssetsUrl
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
@@ -65,6 +68,7 @@ func bundleAssets() {
 var minifiedFiles = regexp.MustCompile(`(min)\.\w+$`)
 
 func compressAssets() {
+	fmt.Println("-> compress assets")
 	var jsFiles, cssFiles []string
 	publicAssetPath := "public" + train.Config.AssetsUrl
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
@@ -98,7 +102,9 @@ func compress(files []string, option string) {
 	cmd.Stderr = &out
 	cmd.Stdout = &out
 
-	err := cmd.Run()
+	fmt.Println(files)
+
+	err = cmd.Run()
 	if err != nil {
 		fmt.Println("YUI Compressor error:", out.String())
 		panic(err)
