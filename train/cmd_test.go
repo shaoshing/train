@@ -16,6 +16,7 @@ func assertEqual(t *testing.T, path, content string) {
 
 func TestCommand(t *testing.T) {
 	copyAssets()
+	defer removeAssets()
 
 	assertEqual(t, "public/assets/javascripts/normal.js", "normal.js\n")
 	assertEqual(t, "public/assets/javascripts/require.js", `//= require javascripts/normal
@@ -48,5 +49,7 @@ sub/require.css
 require.css
 `)
 
-	removeAssets()
+	compressAssets()
+	assertEqual(t, "public/assets/javascripts/require.js", `normal.js;sub/normal.js;sub/require.js;require.js;`)
+
 }
