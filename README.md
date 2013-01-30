@@ -79,15 +79,14 @@ body{
 
     {{.Layout.Train.StylesheetTag "app"}}
     `
-    // The above code will expand into the following html.
+    tmpl, _ := template.New("").Parse(html)
+    tmpl.Execute(os.Stdout, layout)
+    //
     // <script src="/assets/javascripts/jquery.js?12345"></script>
     // <script src="/assets/javascripts/app.js?12345"></script>
     //
     // <link rel="stylesheet" href="/assets/stylesheets/reset.css?12345">
     // <link rel="stylesheet" href="/assets/stylesheets/app.css?12345">
-
-    tmpl, _ := template.New("").Parse(html)
-    tmpl.Execute(os.Stdout, layout)
   }
 ```
 
