@@ -45,6 +45,7 @@ func serveAssets(w http.ResponseWriter, r *http.Request) {
 		content, err := ReadAsset(url)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
+			io.Copy(w, strings.NewReader(err.Error()))
 		} else {
 			w.Header().Set("Content-Type", contentTypes[ext])
 			io.Copy(w, strings.NewReader(content))
