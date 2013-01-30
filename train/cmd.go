@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -61,13 +62,17 @@ func bundleAssets() {
 	})
 }
 
+var minifiedFiles = regexp.MustCompile(`(min)\.\w+$`)
+
 func compressAssets() {
 	var jsFiles, cssFiles []string
 	publicAssetPath := "public" + train.Config.AssetsUrl
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
 		fileExt := path.Ext(filePath)
+		if minifiedFiles.Match([]byte(filePath)) {
+			return nil
+		}
 		switch fileExt {
-		// Skip minified files
 		case ".js":
 			jsFiles = append(jsFiles, filePath)
 		case ".css":
@@ -81,6 +86,12 @@ func compressAssets() {
 }
 
 func compress(files []string, option string) {
+	_, err := exec.LookPath("java")
+	if err != nil {
+		fmt.Println("You don't have Java installed.")
+		return
+	}
+
 	yuicompressor := os.Getenv("GOPATH") + "/src/github.com/shaoshing/train/train/yuicompressor-2.4.7.jar"
 	cmd := exec.Command("sh", "-c", "java -jar "+yuicompressor+" -o '"+option+"' "+strings.Join(files, " "))
 	var out bytes.Buffer

@@ -51,5 +51,11 @@ require.css
 
 	compressAssets()
 	assertEqual(t, "public/assets/javascripts/require.js", `normal.js;sub/normal.js;sub/require.js;require.js;`)
+	assertEqual(t, "public/assets/javascripts/require-min.js", `Please
+Do
+Not
+Compresee
+Me
+`)
 
 }
