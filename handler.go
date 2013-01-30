@@ -42,10 +42,13 @@ func serveAssets(w http.ResponseWriter, r *http.Request) {
 
 	switch ext {
 	case ".js", ".css":
-		w.Header().Set("Content-Type", contentTypes[ext])
 		content := ReadAsset(url)
-		reader := strings.NewReader(content)
-		io.Copy(w, reader)
+		if len(content) == 0 {
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			w.Header().Set("Content-Type", contentTypes[ext])
+			io.Copy(w, strings.NewReader(content))
+		}
 	default:
 		(*assetServer).ServeHTTP(w, r)
 	}
