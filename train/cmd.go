@@ -65,7 +65,7 @@ func bundleAssets() {
 	})
 }
 
-var minifiedFiles = regexp.MustCompile(`(min)\.\w+$`)
+var minifiedFiles = regexp.MustCompile(`(min\.\w+$)|\/min\/`)
 
 func compressAssets() {
 	fmt.Println("-> compress assets")
