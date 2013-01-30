@@ -19,7 +19,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	if Config.BundleAssets {
 		data := bytes.NewBuffer([]byte(""))
 		contents := []string{}
-		_, err = FindAssetsFunc(assetUrl, func(filePath string, content string) {
+		_, err = ReadAssetsFunc(assetUrl, func(filePath string, content string) {
 			contents = append(contents, content)
 		})
 		if err != nil {
@@ -44,7 +44,7 @@ var patterns = map[string](map[string]*regexp.Regexp){
 	},
 }
 
-func FindAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
+func ReadAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
 	filePath := ResolvePath(assetUrl)
 
 	var b_content []byte
@@ -72,7 +72,7 @@ func FindAssetsFunc(assetUrl string, found func(filePath string, content string)
 			}
 
 			var paths []string
-			paths, err = FindAssetsFunc(string(assetUrl)+fileExt, found)
+			paths, err = ReadAssetsFunc(string(assetUrl)+fileExt, found)
 			if err != nil {
 				return
 			}
