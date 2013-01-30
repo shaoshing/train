@@ -82,8 +82,7 @@ func FindDirectivesHeader(content *string, fileExt string) string {
 
 func ResolvePath(assetUrl string) string {
 	filePath := string(strings.Replace(assetUrl, Config.AssetsUrl, "", 1))
-	result := Config.AssetsPath + "/" + filePath
-	result = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(result), []byte("/")))
+	result := path.Clean(Config.AssetsPath + "/" + filePath)
 
 	return result
 }

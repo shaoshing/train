@@ -3,6 +3,7 @@ package train
 import (
 	"html/template"
 	"os"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -34,11 +35,10 @@ func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 		paths = paths[len(paths)-1:]
 	}
 
-	for _, path := range paths {
-		info, _ := os.Stat(path)
+	for _, assetPath := range paths {
+		info, _ := os.Stat(assetPath)
 		mtimes = append(mtimes, info.ModTime())
-		assetUrl := strings.Replace(path, Config.AssetsPath, Config.AssetsUrl, 1)
-		assetUrl = string(regexp.MustCompile(`\/{2,}`).ReplaceAll([]byte(assetUrl), []byte("/")))
+		assetUrl := path.Clean(strings.Replace(assetPath, Config.AssetsPath, Config.AssetsUrl, 1))
 		urls = append(urls, assetUrl)
 	}
 	return
