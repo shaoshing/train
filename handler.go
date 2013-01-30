@@ -2,6 +2,7 @@ package train
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -46,6 +47,7 @@ func serveAssets(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			io.Copy(w, strings.NewReader(err.Error()))
+			log.Printf("Failed to deliver asset\nGET %s\n-----------------------\n%s\n", url, err.Error())
 		} else {
 			w.Header().Set("Content-Type", contentTypes[ext])
 			io.Copy(w, strings.NewReader(content))
