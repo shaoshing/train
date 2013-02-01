@@ -95,7 +95,7 @@ body{
 Install the command line tool to bundle and compress assets automatically:
 
 ```shell
-go install github.com/shaoshing/train/train
+go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
 
 train
 -> clean bundled assets
