@@ -1,10 +1,10 @@
 # Train
 
-Asset Management Pakcage for web app in Go language. Inspired by [Rails Asset Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
+Asset Management Package for web app in Go language. Inspired by [Rails Asset Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
 
 ## Quick Look
 
-Use Train to mange you asset's dependencies. Enable you to write javascript or stylesheet in the following way:
+Use Train to manage your asset's dependencies. Enables you to write javascript or stylesheet in the following way:
 
 
 app.js
