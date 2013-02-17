@@ -2,6 +2,8 @@
 
 Asset Management Package for web app in Go language. Inspired by [Rails Asset Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
 
+[![Build Status](https://travis-ci.org/shaoshing/train.png?branch=master)](https://travis-ci.org/shaoshing/train)
+
 ## Quick Look
 
 Use Train to manage your asset's dependencies. Enables you to write javascript or stylesheet in the following way:
@@ -121,3 +123,8 @@ Will become:
 <script src="/assets/javascripts/app.js?12345"></script>
 <link rel="stylesheet" href="/assets/stylesheets/app.css?12345">
 ```
+
+
+## License
+
+Train is released under the [MIT License](http://www.opensource.org/licenses/MIT).
