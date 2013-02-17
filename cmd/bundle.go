@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -96,7 +97,9 @@ func compress(files []string, option string) {
 		return
 	}
 
-	yuicompressor := os.Getenv("GOPATH") + "/src/github.com/shaoshing/train/cmd/yuicompressor-2.4.7.jar"
+	_, filename, _, _ := runtime.Caller(1)
+	pkgPath := path.Dir(filename)
+	yuicompressor := pkgPath + "/cmd/yuicompressor-2.4.7.jar"
 	cmd := exec.Command("sh", "-c", "java -jar "+yuicompressor+" -o '"+option+"' "+strings.Join(files, " "))
 	var out bytes.Buffer
 	cmd.Stderr = &out
