@@ -99,7 +99,7 @@ func compress(files []string, option string) {
 
 	_, filename, _, _ := runtime.Caller(1)
 	pkgPath := path.Dir(filename)
-	yuicompressor := pkgPath + "/cmd/yuicompressor-2.4.7.jar"
+	yuicompressor := pkgPath + "/yuicompressor-2.4.7.jar"
 	cmd := exec.Command("sh", "-c", "java -jar "+yuicompressor+" -o '"+option+"' "+strings.Join(files, " "))
 	var out bytes.Buffer
 	cmd.Stderr = &out
