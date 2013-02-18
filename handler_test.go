@@ -1,7 +1,7 @@
 package train
 
 import (
-	"github.com/bmizerany/assert"
+	"github.com/shaoshing/gotest"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -14,16 +14,17 @@ var httpClient = http.Client{}
 var httpServer = httptest.NewServer(http.HandlerFunc(Handler))
 
 func TestHandler(t *testing.T) {
+	assert.Test = t
 	Config.BundleAssets = true
 
-	assertAsset(t, "/assets/static.txt", "static.txt\n", "text/plain")
-	assertAsset(t, "/assets/images/dummy.png", "dummy\n", "image/png")
-	assert404(t, "/assets/not/found.js")
+	assertAsset("/assets/static.txt", "static.txt\n", "text/plain")
+	assertAsset("/assets/images/dummy.png", "dummy\n", "image/png")
+	assert404("/assets/not/found.js")
 
-	assertAsset(t, "/assets/javascripts/normal.js", "normal.js\n", "application/javascript")
-	assertAsset(t, "/assets/stylesheets/normal.css", "normal.css\n", "text/css")
+	assertAsset("/assets/javascripts/normal.js", "normal.js\n", "application/javascript")
+	assertAsset("/assets/stylesheets/normal.css", "normal.css\n", "text/css")
 
-	assertAsset(t, "/assets/javascripts/require.js", `normal.js
+	assertAsset("/assets/javascripts/require.js", `normal.js
 
 sub/normal.js
 
@@ -31,7 +32,7 @@ sub/require.js
 
 require.js
 `, "application/javascript")
-	assertAsset(t, "/assets/stylesheets/require.css", `normal.css
+	assertAsset("/assets/stylesheets/require.css", `normal.css
 
 sub/normal.css
 
@@ -42,11 +43,12 @@ require.css
 }
 
 func TestBundledAssets(t *testing.T) {
+	assert.Test = t
 	exec.Command("cp", "-rf", "assets/public", "./").Run()
 	defer exec.Command("rm", "-rf", "public").Run()
 
-	assertAsset(t, "/assets/app.js", "app.js\n", "application/javascript")
-	assert404(t, "/assets/normal.js")
+	assertAsset("/assets/app.js", "app.js\n", "application/javascript")
+	assert404("/assets/normal.js")
 }
 
 func get(url string) (body, contentType string, status int) {
@@ -65,13 +67,13 @@ func get(url string) (body, contentType string, status int) {
 	return
 }
 
-func assertAsset(t *testing.T, url, expectedBody, expectedContentType string) {
+func assertAsset(url, expectedBody, expectedContentType string) {
 	body, contentType, _ := get(url)
-	assert.Equal(t, expectedBody, body)
-	assert.Equal(t, true, strings.Index(contentType, expectedContentType) != -1)
+	assert.Equal(expectedBody, body)
+	assert.Equal(true, strings.Index(contentType, expectedContentType) != -1)
 }
 
-func assert404(t *testing.T, url string) {
+func assert404(url string) {
 	_, _, status := get(url)
-	assert.Equal(t, 404, status)
+	assert.Equal(404, status)
 }

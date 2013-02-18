@@ -1,29 +1,30 @@
 package main
 
 import (
-	"github.com/bmizerany/assert"
+	"github.com/shaoshing/gotest"
 	"io/ioutil"
 	"testing"
 )
 
-func assertEqual(t *testing.T, path, content string) {
+func assertEqual(path, content string) {
 	c, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(t, content, string(c))
+	assert.Equal(content, string(c))
 }
 
 func TestCommand(t *testing.T) {
+	assert.Test = t
 	copyAssets()
 	defer removeAssets()
 
-	assertEqual(t, "public/assets/javascripts/normal.js", "normal.js\n")
-	assertEqual(t, "public/assets/javascripts/require.js", `//= require javascripts/normal
+	assertEqual("public/assets/javascripts/normal.js", "normal.js\n")
+	assertEqual("public/assets/javascripts/require.js", `//= require javascripts/normal
 //= require javascripts/sub/require
 require.js
 `)
-	assertEqual(t, "public/assets/stylesheets/require.css", `/*
+	assertEqual("public/assets/stylesheets/require.css", `/*
  *= require stylesheets/normal
  *= require stylesheets/sub/require
  */
@@ -31,8 +32,8 @@ require.css
 `)
 
 	bundleAssets()
-	assertEqual(t, "public/assets/javascripts/normal.js", "normal.js\n")
-	assertEqual(t, "public/assets/javascripts/require.js", `normal.js
+	assertEqual("public/assets/javascripts/normal.js", "normal.js\n")
+	assertEqual("public/assets/javascripts/require.js", `normal.js
 
 sub/normal.js
 
@@ -40,7 +41,7 @@ sub/require.js
 
 require.js
 `)
-	assertEqual(t, "public/assets/stylesheets/require.css", `normal.css
+	assertEqual("public/assets/stylesheets/require.css", `normal.css
 
 sub/normal.css
 
@@ -50,8 +51,8 @@ require.css
 `)
 
 	compressAssets()
-	assertEqual(t, "public/assets/javascripts/require.js", `normal.js;sub/normal.js;sub/require.js;require.js;`)
-	assertEqual(t, "public/assets/javascripts/require-min.js", `Please
+	assertEqual("public/assets/javascripts/require.js", `normal.js;sub/normal.js;sub/require.js;require.js;`)
+	assertEqual("public/assets/javascripts/require-min.js", `Please
 Do
 Not
 Compresee
