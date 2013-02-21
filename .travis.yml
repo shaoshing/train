@@ -1,4 +1,7 @@
 language: go
+rvm:
+  - 1.9.3
 install:
   - go get github.com/shaoshing/gotest
   - go get github.com/shaoshing/train
+  - gem in sass
