@@ -34,7 +34,8 @@ func (this Helpers) StylesheetTag(name string) template.HTML {
 }
 
 func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
-	paths, err := ReadAssetsFunc(assetUrl, func(filePath string, content string) {})
+	filePath := ResolvePath(assetUrl)
+	paths, err := ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
 	if err != nil {
 		panic(err)
 	}

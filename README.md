@@ -11,7 +11,7 @@ Use Train to manage your asset's dependencies. Enables you to write javascript o
 
 app.js
 ```js
-//= require jquery.js
+//= require jquery
 
 $(function(){
   // Do something cool

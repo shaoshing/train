@@ -11,7 +11,9 @@ import (
 )
 
 func ReadAsset(assetUrl string) (result string, err error) {
-	fileExt := path.Ext(assetUrl)
+	filePath := ResolvePath(assetUrl)
+	fileExt := path.Ext(filePath)
+
 	if fileExt != ".js" && fileExt != ".css" {
 		err = errors.New("Unsupported Asset: " + assetUrl)
 		return
@@ -20,7 +22,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	if Config.BundleAssets {
 		data := bytes.NewBuffer([]byte(""))
 		contents := []string{}
-		_, err = ReadAssetsFunc(assetUrl, func(filePath string, content string) {
+		_, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {
 			contents = append(contents, content)
 		})
 		if err != nil {
@@ -29,7 +31,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 		data.Write([]byte(strings.Join(contents, "\n")))
 		result = string(data.Bytes())
 	} else {
-		result, err = ReadRawAsset(assetUrl)
+		result, err = ReadRawAsset(filePath, assetUrl)
 	}
 	return
 }
@@ -45,16 +47,14 @@ var patterns = map[string](map[string]*regexp.Regexp){
 	},
 }
 
-func ReadAssetsFunc(assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
-	filePath := ResolvePath(assetUrl)
-
+func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
 	var content string
-	content, err = ReadRawAsset(assetUrl)
+	content, err = ReadRawAsset(filePath, assetUrl)
 	if err != nil {
 		return
 	}
 
-	fileExt := path.Ext(assetUrl)
+	fileExt := path.Ext(filePath)
 	header := FindDirectivesHeader(&content, fileExt)
 
 	if len(header) != 0 {
@@ -65,13 +65,14 @@ func ReadAssetsFunc(assetUrl string, found func(filePath string, content string)
 				continue
 			}
 
-			requiredAssetUrl := patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte(""))
+			requiredAssetUrl := string(patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte("")))
 			if len(requiredAssetUrl) == 0 {
 				continue
 			}
 
 			var paths []string
-			paths, err = ReadAssetsFunc(string(requiredAssetUrl)+fileExt, found)
+			requiredFilePath := ResolvePath(requiredAssetUrl + fileExt)
+			paths, err = ReadAssetsFunc(requiredFilePath, requiredAssetUrl+fileExt, found)
 			if err != nil {
 				err = errors.New(fmt.Sprintf("%s\n--- required by %s", err.Error(), assetUrl))
 				return
@@ -97,8 +98,7 @@ func ResolvePath(assetUrl string) string {
 	return result
 }
 
-func ReadRawAsset(assetUrl string) (result string, err error) {
-	filePath := ResolvePath(assetUrl)
+func ReadRawAsset(filePath, assetUrl string) (result string, err error) {
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		err = errors.New("Asset Not Found: " + assetUrl)
