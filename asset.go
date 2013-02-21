@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"regexp"
 	"strings"
@@ -14,25 +15,29 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	filePath := ResolvePath(assetUrl)
 	fileExt := path.Ext(filePath)
 
-	if fileExt != ".js" && fileExt != ".css" {
-		err = errors.New("Unsupported Asset: " + assetUrl)
-		return
-	}
-
-	if Config.BundleAssets {
-		data := bytes.NewBuffer([]byte(""))
-		contents := []string{}
-		_, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {
-			contents = append(contents, content)
-		})
-		if err != nil {
-			return
+	switch fileExt {
+	case ".js", ".css":
+		if Config.BundleAssets {
+			data := bytes.NewBuffer([]byte(""))
+			contents := []string{}
+			_, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {
+				contents = append(contents, content)
+			})
+			if err != nil {
+				return
+			}
+			data.Write([]byte(strings.Join(contents, "\n")))
+			result = string(data.Bytes())
+		} else {
+			result, err = ReadRawAsset(filePath, assetUrl)
 		}
-		data.Write([]byte(strings.Join(contents, "\n")))
-		result = string(data.Bytes())
-	} else {
-		result, err = ReadRawAsset(filePath, assetUrl)
+	case ".sass":
+		result, err = CompileSASS(filePath)
+	default:
+		err = errors.New("Unsupported Asset: " + assetUrl)
 	}
+	return
+
 	return
 }
 
@@ -91,11 +96,24 @@ func FindDirectivesHeader(content *string, fileExt string) string {
 	return string(patterns[fileExt]["head"].Find([]byte(*content)))
 }
 
-func ResolvePath(assetUrl string) string {
-	filePath := string(strings.Replace(assetUrl, Config.AssetsUrl, "", 1))
-	result := path.Clean(Config.AssetsPath + "/" + filePath)
+func ResolvePath(assetUrl string) (assetPath string) {
+	assetPath = string(strings.Replace(assetUrl, Config.AssetsUrl, "", 1))
+	assetPath = path.Clean(Config.AssetsPath + "/" + assetPath)
 
-	return result
+	fileExt := path.Ext(assetPath)
+	if !isFileExist(assetPath) && fileExt == ".css" {
+		sassPath := strings.Replace(assetPath, fileExt, ".sass", 1)
+		if isFileExist(sassPath) {
+			assetPath = sassPath
+		}
+	}
+
+	return
+}
+
+func isFileExist(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 func ReadRawAsset(filePath, assetUrl string) (result string, err error) {

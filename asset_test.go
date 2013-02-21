@@ -32,6 +32,13 @@ func TestReadingNormalAssets(t *testing.T) {
 	assert.Equal("Unsupported Asset: /assets/static.txt", err.Error())
 }
 
+func TestReadingSass(t *testing.T) {
+	assert.Test = t
+	content, _ := ReadAsset("/assets/stylesheets/app.css")
+	assert.Contain("h1", content)
+	assert.Contain("h2", content)
+}
+
 func TestReadingAssetsWithRequire(t *testing.T) {
 	assert.Test = t
 	Config.BundleAssets = true

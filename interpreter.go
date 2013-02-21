@@ -3,6 +3,7 @@ package train
 import (
 	"bytes"
 	"errors"
+	"io/ioutil"
 	"net"
 	"os"
 	"os/exec"
@@ -97,6 +98,7 @@ func init() {
 	sass = NewInterpreter("sass", SassSocketName)
 }
 
-func CompileSASS(content []byte) (string, error) {
+func CompileSASS(path string) (string, error) {
+	content, _ := ioutil.ReadFile(path)
 	return sass.Render(content)
 }

@@ -40,6 +40,13 @@ sub/require.css
 
 require.css
 `, "text/css")
+
+	assertAsset("/assets/stylesheets/app.css", `h1 {
+  color: green; }
+
+h2 {
+  color: green; }
+`, "text/css")
 }
 
 func TestBundledAssets(t *testing.T) {
