@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"net"
-	"os"
 	"os/exec"
 	"path"
 	"runtime"
@@ -87,8 +86,6 @@ func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	if strings.Contains(string(p), "<<ready") {
 		this.interpreter.Ready()
 	}
-
-	n, err = os.Stdout.Write(p)
 	return
 }
 
