@@ -59,6 +59,11 @@ require.css
 h2 {
   color: green; }
 `)
+
+	assertEqual("public/assets/stylesheets/scss.css", `h2 {
+  color: green; }
+`)
+
 	assertEqual("public/assets/javascripts/app.js", `(function() {
   var a;
 

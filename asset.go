@@ -32,7 +32,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 		} else {
 			result, err = ReadRawAsset(filePath, assetUrl)
 		}
-	case ".sass", ".coffee":
+	case ".sass", ".scss", ".coffee":
 		result, err = interpreter.Compile(filePath)
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
@@ -98,7 +98,7 @@ func FindDirectivesHeader(content *string, fileExt string) string {
 }
 
 var mapAlterExtensions = map[string]string{
-	".css": ".sass",
+	".css": ".sass|.scss",
 	".js":  ".coffee",
 }
 
@@ -107,11 +107,14 @@ func ResolvePath(assetUrl string) (assetPath string) {
 	assetPath = path.Clean(Config.AssetsPath + "/" + assetPath)
 
 	fileExt := path.Ext(assetPath)
-	alterExt, hasAlterExt := mapAlterExtensions[fileExt]
+	alterExts, hasAlterExt := mapAlterExtensions[fileExt]
 	if !isFileExist(assetPath) && hasAlterExt {
-		alterPath := strings.Replace(assetPath, fileExt, alterExt, 1)
-		if isFileExist(alterPath) {
-			assetPath = alterPath
+		for _, alterExt := range strings.Split(alterExts, "|") {
+			alterPath := strings.Replace(assetPath, fileExt, alterExt, 1)
+			if isFileExist(alterPath) {
+				assetPath = alterPath
+				break
+			}
 		}
 	}
 

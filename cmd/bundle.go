@@ -39,6 +39,7 @@ func copyAssets() {
 
 var mapCompiledExt = map[string]string{
 	".sass":   ".css",
+	".scss":   ".css",
 	".coffee": ".js",
 }
 
@@ -65,7 +66,7 @@ func bundleAssets() {
 				}
 				ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
 			}
-		case ".sass", ".coffee":
+		case ".sass", ".scss", ".coffee":
 			content, err := train.ReadAsset(assetUrl)
 			if err != nil {
 				removeAssets()

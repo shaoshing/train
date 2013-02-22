@@ -52,6 +52,12 @@ class Interpreter
     engine.render
   end
 
+  def self.render_scss content
+    require "sass"
+    engine = Sass::Engine.new(content, :syntax => :scss, :load_paths => ["assets/stylesheets"])
+    engine.render
+  end
+
   def self.render_coffee content
     require "coffee-script"
     CoffeeScript.compile content

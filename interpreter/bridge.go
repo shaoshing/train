@@ -21,7 +21,7 @@ func init() {
 func Compile(filePath string) (result string, err error) {
 	fileExt := path.Ext(filePath)
 	switch fileExt {
-	case ".sass", ".coffee":
+	case ".sass", ".scss", ".coffee":
 		content, e := ioutil.ReadFile(filePath)
 		if e != nil {
 			panic(err)

@@ -15,6 +15,13 @@ func TestSass(t *testing.T) {
 	assert.Contain("h1", css)
 	assert.Contain("h2", css)
 
+	css, e = Compile("assets/stylesheets/app2.scss")
+	if e != nil {
+		panic(e)
+	}
+	assert.Contain("h2", css)
+	assert.Contain("h3", css)
+
 	css, e = Compile("assets/stylesheets/app.err.sass")
 	assert.True(e != nil)
 	assert.Contain("Could not compile sass:", e.Error())

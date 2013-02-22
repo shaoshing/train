@@ -48,6 +48,13 @@ h2 {
   color: green; }
 `, "text/css")
 
+	assertAsset("/assets/stylesheets/app2.css", `h2 {
+  color: green; }
+
+h3 {
+  color: green; }
+`, "text/css")
+
 	body, _, status := get("/assets/stylesheets/app.err.css")
 	assert.Contain("Could not compile sass", body)
 	assert.Equal(500, status)

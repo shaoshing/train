@@ -40,6 +40,13 @@ func TestReadingSass(t *testing.T) {
 	}
 	assert.Contain("h1", content)
 	assert.Contain("h2", content)
+
+	content, err = ReadAsset("/assets/stylesheets/app2.css")
+	if err != nil {
+		panic(err)
+	}
+	assert.Contain("h2", content)
+	assert.Contain("h3", content)
 }
 
 func TestReadingCoffee(t *testing.T) {

@@ -31,6 +31,7 @@ Examples:<br/>
 <a href="/assets/stylesheets/normal.css">CSS 1</a><br/>
 <a href="/assets/stylesheets/require.css">CSS 2</a> (with require directive)<br/>
 <a href="/assets/stylesheets/app.css">CSS 3</a> (compiled from SASS <a href="/assets/stylesheets/app.sass">source</a>)<br/>
-<a href="/assets/stylesheets/app.err.css">CSS 4</a> (compiled from SAA, but failed <a href="/assets/stylesheets/app.err.sass">source</a>)<br/>
+<a href="/assets/stylesheets/app2.css">CSS 4</a> (compiled from SCSS <a href="/assets/stylesheets/app2.scss">source</a>)<br/>
+<a href="/assets/stylesheets/app.err.css">CSS 5</a> (compiled from SASS, but failed <a href="/assets/stylesheets/app.err.sass">source</a>)<br/>
 `)
 }
