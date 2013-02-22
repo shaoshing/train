@@ -51,6 +51,34 @@ func TestReadingCoffee(t *testing.T) {
 	assert.Contain("square", content)
 }
 
+func TestRequireDirective(t *testing.T) {
+	assert.Test = t
+	Config.BundleAssets = true
+	defer func() {
+		Config.BundleAssets = false
+	}()
+
+	content, err := ReadAsset("/assets/javascripts/require2.js")
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(`normal.js
+
+sub/normal.js
+
+`, content)
+
+	content, err = ReadAsset("/assets/stylesheets/require2.css")
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(`normal.css
+
+sub/normal.css
+
+`, content)
+}
+
 func TestReadingAssetsWithRequire(t *testing.T) {
 	assert.Test = t
 	Config.BundleAssets = true

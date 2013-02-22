@@ -44,12 +44,12 @@ func ReadAsset(assetUrl string) (result string, err error) {
 
 var patterns = map[string](map[string]*regexp.Regexp){
 	".js": map[string]*regexp.Regexp{
-		"head":    regexp.MustCompile(`(\/\/\=\ require\ +.*\n)+`),
-		"require": regexp.MustCompile(`^\/\/\=\ require\ +`),
+		"head":    regexp.MustCompile(`(.*\n)*(\ *\/\/\=\ *require\ +.*\n)+`),
+		"require": regexp.MustCompile(`^\ *\/\/\=\ *require\ +`),
 	},
 	".css": map[string]*regexp.Regexp{
-		"head":    regexp.MustCompile(`(\ *\/\*\ *\n)(\ *\*\=\ +require\ +.*\n)+(\ *\*\/\ *\n)`),
-		"require": regexp.MustCompile(`^\ *\*\=\ +require\ +`),
+		"head":    regexp.MustCompile(`(.*\n)*(\ *\/\*\ *\n)(\ *\*\=\ *require\ +.*\n)+(\ *\*\/\ *\n)`),
+		"require": regexp.MustCompile(`^\ *\*\=\ *require\ +`),
 	},
 }
 
