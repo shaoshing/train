@@ -33,7 +33,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 			result, err = ReadRawAsset(filePath, assetUrl)
 		}
 	case ".sass":
-		result, err = interpreter.CompileSASS(filePath)
+		result, err = interpreter.Compile(filePath)
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
 	}

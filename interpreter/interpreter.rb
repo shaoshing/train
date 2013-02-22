@@ -9,14 +9,14 @@ class Interpreter
 
     loop {
       client = server.accept
-      content = read_all(client)
+      format, content = read_all(client)
 
       begin
-        client.write render_sass(content)
+        result = self.send("render_#{format}", content)
+        client.write "success<<#{result}"
       rescue => e
         puts e
-        client.puts "<<error"
-        client.write e
+        client.write "error<<#{e}"
       end
       client.close
     }
@@ -44,7 +44,7 @@ class Interpreter
       data += tmp
       break if tmp.length < recv_length
     end
-   data
+   data.split("<<")
   end
 
   def self.render_sass content

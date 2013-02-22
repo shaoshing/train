@@ -12,6 +12,27 @@ import (
 	"strings"
 )
 
+var interpreter *Interpreter
+
+func init() {
+	interpreter = NewInterpreter()
+}
+
+func Compile(filePath string) (result string, err error) {
+	fileExt := path.Ext(filePath)
+	switch fileExt {
+	case ".sass":
+		content, e := ioutil.ReadFile(filePath)
+		if e != nil {
+			panic(err)
+		}
+		result, err = interpreter.Render(strings.Replace(fileExt, ".", "", 1), content)
+	default:
+		err = errors.New("Unsupported format (" + filePath + "). Valid formats are: sass.")
+	}
+	return
+}
+
 type Interpreter struct {
 	cmd        *exec.Cmd
 	ready      bool
@@ -19,13 +40,8 @@ type Interpreter struct {
 	socketName string
 }
 
-type StdoutCapturer struct {
-	interpreter *Interpreter
-}
-
 func NewInterpreter() *Interpreter {
 	var i Interpreter
-
 	_, goFile, _, _ := runtime.Caller(0)
 	i.socketName = "/tmp/train.interpreter.socket"
 	i.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb")
@@ -38,6 +54,32 @@ func NewInterpreter() *Interpreter {
 	}()
 
 	return &i
+}
+
+func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
+	if !this.ready {
+		this.Wait()
+	}
+
+	conn, err := net.Dial("unix", this.socketName)
+	if err != nil {
+		panic(err)
+	}
+
+	conn.Write([]byte(format + "<<" + string(content)))
+	var data bytes.Buffer
+	data.ReadFrom(conn)
+	conn.Close()
+
+	compiled := strings.Split(data.String(), "<<")
+	status := compiled[0]
+	result = compiled[1]
+
+	if status == "error" {
+		err = errors.New("Could not compile " + format + ": " + result)
+	}
+
+	return
 }
 
 func (this *Interpreter) Wait() {
@@ -57,28 +99,8 @@ func (this *Interpreter) Ready() {
 	this.queue = make([]chan bool, 0)
 }
 
-func (this *Interpreter) Render(content []byte) (result string, err error) {
-	if !this.ready {
-		this.Wait()
-	}
-
-	conn, err := net.Dial("unix", this.socketName)
-	if err != nil {
-		panic(err)
-	}
-
-	conn.Write(content)
-	var data bytes.Buffer
-	data.ReadFrom(conn)
-	conn.Close()
-
-	if strings.Contains(data.String(), "<<error") {
-		err = errors.New("Could not compile SASS:" + strings.Replace(data.String(), "<<error", "", 1))
-	} else {
-		result = data.String()
-	}
-
-	return
+type StdoutCapturer struct {
+	interpreter *Interpreter
 }
 
 func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
@@ -87,18 +109,4 @@ func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	}
 	n, err = os.Stdout.Write(p)
 	return
-}
-
-var sass *Interpreter
-
-func init() {
-	sass = NewInterpreter()
-}
-
-func CompileSASS(path string) (string, error) {
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-	return sass.Render(content)
 }

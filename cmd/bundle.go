@@ -61,7 +61,7 @@ func bundleAssets() {
 				ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
 			}
 		case ".sass":
-			content, err := interpreter.CompileSASS(filePath)
+			content, err := interpreter.Compile(filePath)
 			if err != nil {
 				fmt.Printf("Could not compile %s: \n%s", filePath, err)
 				return nil

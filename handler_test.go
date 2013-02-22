@@ -49,7 +49,7 @@ h2 {
 `, "text/css")
 
 	body, _, status := get("/assets/stylesheets/app.err.css")
-	assert.Contain("Could not compile SASS", body)
+	assert.Contain("Could not compile sass", body)
 	assert.Equal(500, status)
 }
 

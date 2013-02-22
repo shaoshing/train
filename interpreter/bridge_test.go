@@ -9,14 +9,14 @@ import (
 func TestSass(t *testing.T) {
 	assert.Test = t
 
-	css, e := CompileSASS("assets/stylesheets/app.sass")
+	css, e := Compile("assets/stylesheets/app.sass")
 	if e != nil {
 		fmt.Println(e)
 	}
 	assert.Contain("h1", css)
 	assert.Contain("h2", css)
 
-	css, e = CompileSASS("assets/stylesheets/app.err.sass")
+	css, e = Compile("assets/stylesheets/app.err.sass")
 	assert.True(e != nil)
-	assert.Contain("Could not compile SASS:", e.Error())
+	assert.Contain("Could not compile sass:", e.Error())
 }
