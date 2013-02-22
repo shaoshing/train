@@ -8,7 +8,7 @@ type config struct {
 
 var Config config = config{
 	AssetsPath: "assets",
-	AssetsUrl:  "/assets",
+	AssetsUrl:  "/assets/",
 }
 
 func init() {

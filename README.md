@@ -52,18 +52,33 @@ body{
 }
 ```
 
-## Usages
+Run the exampler server to see more examples:
 
-### Handler
-
-```go
-  import "github.com/shaoshing/train"
-
-  http.HandleFunc(train.Config.AssetURL, http.HandlerFunc(train.Handler))
+```shell
+go run example/main.go
 ```
 
+## Usages
 
-### Template
+### Http Handler
+
+```go
+  package main
+
+  import (
+    "fmt"
+    "github.com/shaoshing/train"
+    "net/http"
+  )
+
+  func main() {
+    http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
+    fmt.Println("Listening to localhost:8000")
+    http.ListenAndServe(":8080", nil)
+  }
+```
+
+### Template Helpers
 
 
 ```go
