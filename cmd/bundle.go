@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/shaoshing/train"
-	"github.com/shaoshing/train/interpreter"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -38,6 +37,11 @@ func copyAssets() {
 	}
 }
 
+var mapCompiledExt = map[string]string{
+	".sass":   ".css",
+	".coffee": ".js",
+}
+
 func bundleAssets() {
 	fmt.Println("-> bundle and compile assets")
 
@@ -49,10 +53,11 @@ func bundleAssets() {
 			return nil
 		}
 
-		switch path.Ext(filePath) {
+		assetUrl := strings.Replace(filePath, publicAssetPath, train.Config.AssetsUrl, 1)
+		fileExt := path.Ext(filePath)
+		switch fileExt {
 		case ".js", ".css":
 			if hasRequireDirectives(filePath) {
-				assetUrl := strings.Replace(filePath, publicAssetPath, train.Config.AssetsUrl, 1)
 				content, err := train.ReadAsset(assetUrl)
 				if err != nil {
 					removeAssets()
@@ -60,15 +65,15 @@ func bundleAssets() {
 				}
 				ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
 			}
-		case ".sass":
-			content, err := interpreter.Compile(filePath)
+		case ".sass", ".coffee":
+			content, err := train.ReadAsset(assetUrl)
 			if err != nil {
-				fmt.Printf("Could not compile %s: \n%s", filePath, err)
-				return nil
+				removeAssets()
+				panic(err)
 			}
-			cssPath := strings.Replace(filePath, ".sass", ".css", 1)
-			os.Create(cssPath)
-			ioutil.WriteFile(cssPath, []byte(content), os.ModeDevice)
+			compiledPath := strings.Replace(filePath, fileExt, mapCompiledExt[fileExt], 1)
+			os.Create(compiledPath)
+			ioutil.WriteFile(compiledPath, []byte(content), os.ModeDevice)
 		default:
 			return nil
 		}

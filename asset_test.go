@@ -34,9 +34,21 @@ func TestReadingNormalAssets(t *testing.T) {
 
 func TestReadingSass(t *testing.T) {
 	assert.Test = t
-	content, _ := ReadAsset("/assets/stylesheets/app.css")
+	content, err := ReadAsset("/assets/stylesheets/app.css")
+	if err != nil {
+		panic(err)
+	}
 	assert.Contain("h1", content)
 	assert.Contain("h2", content)
+}
+
+func TestReadingCoffee(t *testing.T) {
+	assert.Test = t
+	content, err := ReadAsset("/assets/javascripts/app.js")
+	if err != nil {
+		panic(err)
+	}
+	assert.Contain("square", content)
 }
 
 func TestReadingAssetsWithRequire(t *testing.T) {

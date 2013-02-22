@@ -59,6 +59,13 @@ require.css
 h2 {
   color: green; }
 `)
+	assertEqual("public/assets/javascripts/app.js", `(function() {
+  var a;
+
+  a = 12;
+
+}).call(this);
+`)
 
 	compressAssets()
 	assertEqual("public/assets/javascripts/require.js", `normal.js;sub/normal.js;sub/require.js;require.js;`)
@@ -69,4 +76,5 @@ Compresee
 Me
 `)
 	assertEqual("public/assets/stylesheets/font.css", `h1{color:green}`)
+	assertEqual("public/assets/javascripts/app.js", `(function(){var b;b=12}).call(this);`)
 }

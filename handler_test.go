@@ -51,6 +51,13 @@ h2 {
 	body, _, status := get("/assets/stylesheets/app.err.css")
 	assert.Contain("Could not compile sass", body)
 	assert.Equal(500, status)
+
+	body, _, _ = get("/assets/javascripts/app.js")
+	assert.Contain("square = function(x)", body)
+
+	body, _, status = get("/assets/javascripts/app.err.js")
+	assert.Contain("Could not compile coffee", body)
+	assert.Equal(500, status)
 }
 
 func TestBundledAssets(t *testing.T) {
