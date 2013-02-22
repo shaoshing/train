@@ -74,7 +74,7 @@ func (this *Interpreter) Render(content []byte) (result string, err error) {
 	conn.Close()
 
 	if strings.Contains(data.String(), "<<error") {
-		err = errors.New("Could not render sass:" + data.String())
+		err = errors.New("Could not compile SASS:" + strings.Replace(data.String(), "<<error", "", 1))
 	} else {
 		result = data.String()
 	}

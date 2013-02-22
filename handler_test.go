@@ -47,6 +47,10 @@ require.css
 h2 {
   color: green; }
 `, "text/css")
+
+	body, _, status := get("/assets/stylesheets/app.err.css")
+	assert.Contain("Could not compile SASS", body)
+	assert.Equal(500, status)
 }
 
 func TestBundledAssets(t *testing.T) {

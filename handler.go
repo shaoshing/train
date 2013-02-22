@@ -45,7 +45,12 @@ func serveAssets(w http.ResponseWriter, r *http.Request) {
 	case ".js", ".css":
 		content, err := ReadAsset(url)
 		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
+			if strings.Contains(err.Error(), "Could not compile") {
+				w.WriteHeader(http.StatusInternalServerError)
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+			}
+
 			io.Copy(w, strings.NewReader(err.Error()))
 			log.Printf("Failed to deliver asset\nGET %s\n-----------------------\n%s\n", url, err.Error())
 		} else {

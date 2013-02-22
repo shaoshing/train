@@ -18,5 +18,5 @@ func TestSass(t *testing.T) {
 
 	css, e = CompileSASS("assets/stylesheets/app.err.sass")
 	assert.True(e != nil)
-	assert.Contain("Could not render sass:", e.Error())
+	assert.Contain("Could not compile SASS:", e.Error())
 }
