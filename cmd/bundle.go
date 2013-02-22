@@ -38,32 +38,49 @@ func copyAssets() {
 }
 
 func bundleAssets() {
-	fmt.Println("-> bundle assets with require directive")
+	fmt.Println("-> bundle and compile assets")
+
 	train.Config.BundleAssets = true
 	publicAssetPath := "public" + train.Config.AssetsUrl
+
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
-		fileExt := path.Ext(filePath)
-		if fileExt != ".js" && fileExt != ".css" {
-			return nil
-		}
 
-		assetUrl := strings.Replace(filePath, publicAssetPath, train.Config.AssetsUrl, 1)
-		b_content, err := ioutil.ReadFile(filePath)
-		content := string(b_content)
-		header := train.FindDirectivesHeader(&content, fileExt)
-		if len(header) != 0 {
-			content, err := train.ReadAsset(assetUrl)
-			if err != nil {
-				removeAssets()
-				panic(err)
+		switch path.Ext(filePath) {
+		case ".js", ".css":
+			if hasRequireDirectives(filePath) {
+				assetUrl := strings.Replace(filePath, publicAssetPath, train.Config.AssetsUrl, 1)
+				content, err := train.ReadAsset(assetUrl)
+				if err != nil {
+					removeAssets()
+					panic(err)
+				}
+				ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
 			}
-			ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
+		case ".sass":
+			content, err := train.CompileSASS(filePath)
+			if err != nil {
+				fmt.Printf("Could not compile %s: \n%s", filePath, err)
+				return nil
+			}
+			cssPath := strings.Replace(filePath, ".sass", ".css", 1)
+			os.Create(cssPath)
+			ioutil.WriteFile(cssPath, []byte(content), os.ModeDevice)
+		default:
+			return nil
 		}
 		return nil
 	})
+}
+
+func hasRequireDirectives(filePath string) bool {
+	b_content, _ := ioutil.ReadFile(filePath)
+	content := string(b_content)
+	fileExt := path.Ext(filePath)
+	header := train.FindDirectivesHeader(&content, fileExt)
+	return len(header) != 0
 }
 
 var minifiedFiles = regexp.MustCompile(`(min\.\w+$)|\/min\/`)

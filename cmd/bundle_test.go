@@ -50,6 +50,16 @@ sub/require.css
 require.css
 `)
 
+	assertEqual("public/assets/stylesheets/font.css", `h1 {
+  color: green; }
+`)
+	assertEqual("public/assets/stylesheets/app.css", `h1 {
+  color: green; }
+
+h2 {
+  color: green; }
+`)
+
 	compressAssets()
 	assertEqual("public/assets/javascripts/require.js", `normal.js;sub/normal.js;sub/require.js;require.js;`)
 	assertEqual("public/assets/javascripts/require-min.js", `Please
@@ -58,5 +68,5 @@ Not
 Compresee
 Me
 `)
-
+	assertEqual("public/assets/stylesheets/font.css", `h1{color:green}`)
 }
