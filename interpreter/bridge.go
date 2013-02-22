@@ -21,7 +21,7 @@ func init() {
 func Compile(filePath string) (result string, err error) {
 	fileExt := path.Ext(filePath)
 	switch fileExt {
-	case ".sass":
+	case ".sass", ".coffee":
 		content, e := ioutil.ReadFile(filePath)
 		if e != nil {
 			panic(err)
@@ -76,7 +76,7 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 	result = compiled[1]
 
 	if status == "error" {
-		err = errors.New("Could not compile " + format + ": " + result)
+		err = errors.New("Could not compile " + format + ":\n" + result)
 	}
 
 	return

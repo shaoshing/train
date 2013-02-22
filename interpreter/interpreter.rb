@@ -1,4 +1,3 @@
-require "sass"
 require "socket"
 
 class Interpreter
@@ -48,8 +47,14 @@ class Interpreter
   end
 
   def self.render_sass content
+    require "sass"
     engine = Sass::Engine.new(content, :load_paths => ["assets/stylesheets"])
     engine.render
+  end
+
+  def self.render_coffee content
+    require "coffee-script"
+    CoffeeScript.compile content
   end
 end
 
