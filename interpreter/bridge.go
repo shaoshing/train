@@ -1,17 +1,16 @@
-package train
+package interpreter
 
 import (
 	"bytes"
 	"errors"
 	"io/ioutil"
 	"net"
+	"os"
 	"os/exec"
 	"path"
 	"runtime"
 	"strings"
 )
-
-const SassSocketName = "/tmp/train.sass.socket"
 
 type Interpreter struct {
 	cmd        *exec.Cmd
@@ -24,12 +23,12 @@ type StdoutCapturer struct {
 	interpreter *Interpreter
 }
 
-func NewInterpreter(file, socketName string) *Interpreter {
+func NewInterpreter() *Interpreter {
 	var i Interpreter
 
 	_, goFile, _, _ := runtime.Caller(0)
-	i.socketName = socketName
-	i.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreters/"+file+".rb")
+	i.socketName = "/tmp/train.interpreter.socket"
+	i.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb")
 	i.cmd.Stdout = &StdoutCapturer{&i}
 	go func() {
 		err := i.cmd.Run()
@@ -86,16 +85,20 @@ func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	if strings.Contains(string(p), "<<ready") {
 		this.interpreter.Ready()
 	}
+	n, err = os.Stdout.Write(p)
 	return
 }
 
 var sass *Interpreter
 
 func init() {
-	sass = NewInterpreter("sass", SassSocketName)
+	sass = NewInterpreter()
 }
 
 func CompileSASS(path string) (string, error) {
-	content, _ := ioutil.ReadFile(path)
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
 	return sass.Render(content)
 }

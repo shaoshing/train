@@ -1,13 +1,18 @@
+require "sass"
+require "socket"
+
 class Interpreter
-  def self.run socket_name
-    server = listen(socket_name)
+  SOCKET_NAME = "/tmp/train.interpreter.socket"
+
+  def self.run
+    server = listen
 
     loop {
       client = server.accept
       content = read_all(client)
 
       begin
-        client.write render(content)
+        client.write render_sass(content)
       rescue => e
         puts e
         client.puts "<<error"
@@ -18,10 +23,10 @@ class Interpreter
   end
 
   private
-  def self.listen(socket_name)
+  def self.listen
     begin
-      `rm #{socket_name}`
-      server = UNIXServer.new(socket_name)
+      `rm -f #{SOCKET_NAME}`
+      server = UNIXServer.new(SOCKET_NAME)
       puts "<<ready"
       `touch #{SOCKET_NAME}`
       server
@@ -41,4 +46,11 @@ class Interpreter
     end
    data
   end
+
+  def self.render_sass content
+    engine = Sass::Engine.new(content, :load_paths => ["assets/stylesheets"])
+    engine.render
+  end
 end
+
+Interpreter.run

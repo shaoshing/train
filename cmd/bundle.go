@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/shaoshing/train"
+	"github.com/shaoshing/train/interpreter"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -60,7 +61,7 @@ func bundleAssets() {
 				ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
 			}
 		case ".sass":
-			content, err := train.CompileSASS(filePath)
+			content, err := interpreter.CompileSASS(filePath)
 			if err != nil {
 				fmt.Printf("Could not compile %s: \n%s", filePath, err)
 				return nil

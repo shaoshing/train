@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/shaoshing/train/interpreter"
 	"io/ioutil"
 	"os"
 	"path"
@@ -32,7 +33,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 			result, err = ReadRawAsset(filePath, assetUrl)
 		}
 	case ".sass":
-		result, err = CompileSASS(filePath)
+		result, err = interpreter.CompileSASS(filePath)
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
 	}
