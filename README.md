@@ -8,54 +8,84 @@ Asset Management Package for web app in Go language. Inspired by [Rails Asset Pi
 
 Use Train to manage your asset's dependencies. Enables you to write javascript or stylesheet in the following way:
 
+### Javascript
 
-app.js
+assets/javascripts/base.js
 ```js
-//= require jquery
+appName = "...";
+```
+
+assets/javascripts/app.js
+```js
+//= require javascripts/base
 
 $(function(){
   // Do something cool
 })
 ```
 
-app.css
+GET /assets/javascripts/app.js
+
+```js
+appName = "...";
+
+$(function(){
+  // Do something cool
+})
+```
+
+### Stylesheet
+
+assets/stylesheets/base.css
+
+```css
+h1, h2{ padding:0; }
+```
+
+assets/stylesheets/app.css
 ```css
 /*
  *= require reset
  */
 
-body{
-}
+body{...}
 ```
 
-These files will become:
+GET /assets/stylesheets/app.css
+```css
+h1, h2{ padding:0; }
+
+body{...}
+```
+
+### CoffeeScript
+
+assets/javascripts/app.coffee
+
+```coffee
+alert "Hello CoffeeScript!"
+```
+
+GET /assets/javascripts/app.js
 
 ```js
-/*! jQuery v@1.8.0 jquery.com | jquery.org/license */
-(function(a,b){function G(a){var b=F[a]={};return p.each(a.split(...
-
-$(function(){
-  // Do something cool
-})
+alert("Hello CoffeeScript!");
 ```
+
+### SASS
+
+assets/stylesheets/app.sass
 
 ```css
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-....
-
-body{
-}
+body
+  color: red
 ```
 
-Run the exampler server to see more examples:
+GET /assets/stylesheets/app.js
 
-```shell
-go run example/main.go
+```css
+body{
+  color: red; }
 ```
 
 ## Usages
@@ -74,7 +104,7 @@ go run example/main.go
   func main() {
     http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
     fmt.Println("Listening to localhost:8000")
-    http.ListenAndServe(":8080", nil)
+    http.ListenAndServe(":8000", nil)
   }
 ```
 
