@@ -35,21 +35,36 @@ func (this Helpers) StylesheetTag(name string) template.HTML {
 
 func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 	filePath := ResolvePath(assetUrl)
-	paths, err := ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
-	if err != nil {
-		panic(err)
-	}
+	fileExt := path.Ext(filePath)
+	var paths []string
 
-	if Config.BundleAssets {
-		paths = paths[len(paths)-1:]
+	if fileExt == ".js" || fileExt == ".css" {
+		var err error
+		paths, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
+		if err != nil {
+			panic(err)
+		}
+
+		if Config.BundleAssets {
+			paths = paths[len(paths)-1:]
+		}
+	} else {
+		paths = append(paths, filePath)
 	}
 
 	for _, assetPath := range paths {
 		info, _ := os.Stat(assetPath)
 		mtimes = append(mtimes, info.ModTime())
-		assetUrl := path.Clean(strings.Replace(assetPath, Config.AssetsPath, Config.AssetsUrl, 1))
-		urls = append(urls, assetUrl)
+		urls = append(urls, asserUrlFromPath(assetPath))
 	}
+	return
+}
+
+func asserUrlFromPath(assetPath string) (url string) {
+	url = path.Clean(strings.Replace(assetPath, Config.AssetsPath, Config.AssetsUrl, 1))
+	url = strings.Replace(url, ".sass", ".css", 1)
+	url = strings.Replace(url, ".scss", ".css", 1)
+	url = strings.Replace(url, ".coffee", ".js", 1)
 	return
 }
 

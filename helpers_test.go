@@ -32,6 +32,9 @@ func TestHelpers(t *testing.T) {
 
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/normal.css?`+stamp+`" media="print">`, string(helpers.StylesheetTagWithParam("normal", `media="print"`)))
 
+	assert.Equal(`<script src="/assets/javascripts/app.js?`+stamp+`"></script>`, string(helpers.JavascriptTag("app")))
+	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/app.css?`+stamp+`">`, string(helpers.StylesheetTag("app")))
+
 	Config.BundleAssets = true
 	assert.Equal(`<script src="/assets/javascripts/require.js?`+stamp+`"></script>`, string(helpers.JavascriptTag("require")))
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require.css?`+stamp+`">`, string(helpers.StylesheetTag("require")))
