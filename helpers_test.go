@@ -16,28 +16,26 @@ func TestHelpers(t *testing.T) {
 	stamp := strconv.FormatInt(now.Unix(), 10)
 	updateAssetTimes(now)
 
-	helpers := Helpers{}
-
-	assert.Equal(`<script src="/assets/javascripts/normal.js?`+stamp+`"></script>`, string(helpers.JavascriptTag("normal")))
+	assert.Equal(`<script src="/assets/javascripts/normal.js?`+stamp+`"></script>`, string(JavascriptTag("normal")))
 	assert.Equal(`<script src="/assets/javascripts/normal.js?`+stamp+`"></script>
 <script src="/assets/javascripts/sub/normal.js?`+stamp+`"></script>
 <script src="/assets/javascripts/sub/require.js?`+stamp+`"></script>
-<script src="/assets/javascripts/require.js?`+stamp+`"></script>`, string(helpers.JavascriptTag("require")))
+<script src="/assets/javascripts/require.js?`+stamp+`"></script>`, string(JavascriptTag("require")))
 
-	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/normal.css?`+stamp+`">`, string(helpers.StylesheetTag("normal")))
+	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/normal.css?`+stamp+`">`, string(StylesheetTag("normal")))
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/normal.css?`+stamp+`">
 <link type="text/css" rel="stylesheet" href="/assets/stylesheets/sub/normal.css?`+stamp+`">
 <link type="text/css" rel="stylesheet" href="/assets/stylesheets/sub/require.css?`+stamp+`">
-<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require.css?`+stamp+`">`, string(helpers.StylesheetTag("require")))
+<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require.css?`+stamp+`">`, string(StylesheetTag("require")))
 
-	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/normal.css?`+stamp+`" media="print">`, string(helpers.StylesheetTagWithParam("normal", `media="print"`)))
+	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/normal.css?`+stamp+`" media="print">`, string(StylesheetTagWithParam("normal", `media="print"`)))
 
-	assert.Equal(`<script src="/assets/javascripts/app.js?`+stamp+`"></script>`, string(helpers.JavascriptTag("app")))
-	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/app.css?`+stamp+`">`, string(helpers.StylesheetTag("app")))
+	assert.Equal(`<script src="/assets/javascripts/app.js?`+stamp+`"></script>`, string(JavascriptTag("app")))
+	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/app.css?`+stamp+`">`, string(StylesheetTag("app")))
 
 	Config.BundleAssets = true
-	assert.Equal(`<script src="/assets/javascripts/require.js?`+stamp+`"></script>`, string(helpers.JavascriptTag("require")))
-	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require.css?`+stamp+`">`, string(helpers.StylesheetTag("require")))
+	assert.Equal(`<script src="/assets/javascripts/require.js?`+stamp+`"></script>`, string(JavascriptTag("require")))
+	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require.css?`+stamp+`">`, string(StylesheetTag("require")))
 
 	Config.BundleAssets = false
 }
