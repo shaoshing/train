@@ -25,6 +25,14 @@ func TestSass(t *testing.T) {
 	css, e = Compile("assets/stylesheets/app.err.sass")
 	assert.True(e != nil)
 	assert.Contain("Could not compile sass:", e.Error())
+
+	Config.SASS.DebugInfo = true
+	css, e = Compile("assets/stylesheets/app.sass")
+	assert.Contain("-sass-debug-info", css)
+
+	Config.SASS.LineNumbers = true
+	css, e = Compile("assets/stylesheets/app.sass")
+	assert.Contain("line 1", css)
 }
 
 func TestCoffee(t *testing.T) {

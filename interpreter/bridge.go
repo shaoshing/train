@@ -14,6 +14,13 @@ import (
 
 var interpreter *Interpreter
 
+var Config struct {
+	SASS struct {
+		DebugInfo   bool
+		LineNumbers bool
+	}
+}
+
 func init() {
 	interpreter = NewInterpreter()
 }
@@ -66,7 +73,9 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 		panic(err)
 	}
 
-	conn.Write([]byte(format + "<<" + string(content)))
+	option := getOption()
+
+	conn.Write([]byte(format + "<<" + option + "<<" + string(content)))
 	var data bytes.Buffer
 	data.ReadFrom(conn)
 	conn.Close()
@@ -109,4 +118,14 @@ func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	}
 	n, err = os.Stdout.Write(p)
 	return
+}
+
+func getOption() string {
+	if Config.SASS.LineNumbers {
+		return "line_numbers"
+	}
+	if Config.SASS.DebugInfo {
+		return "debug_info"
+	}
+	return ""
 }

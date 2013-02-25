@@ -8,10 +8,10 @@ class Interpreter
 
     loop {
       client = server.accept
-      format, content = read_all(client)
+      format, option, content = read_all(client)
 
       begin
-        result = self.send("render_#{format}", content)
+        result = self.send("render_#{format}", content, option)
         client.write "success<<#{result}"
       rescue => e
         puts e
@@ -46,19 +46,30 @@ class Interpreter
    data.split("<<")
   end
 
-  def self.render_sass content
+  def self.render_sass content, option
+    _render_sass(content, :sass, option)
+  end
+
+  def self.render_scss content, option
+    _render_sass(content, :scss, option)
+  end
+
+  def self._render_sass content, syntax, option
     require "sass"
-    engine = Sass::Engine.new(content, :load_paths => ["assets/stylesheets"])
+
+    options = {
+      :load_paths => ["assets/stylesheets"],
+      :syntax => syntax
+    }
+
+    options[:debug_info] = true if option == "debug_info"
+    options[:line_numbers] = true if option == "line_numbers"
+
+    engine = Sass::Engine.new(content, options)
     engine.render
   end
 
-  def self.render_scss content
-    require "sass"
-    engine = Sass::Engine.new(content, :syntax => :scss, :load_paths => ["assets/stylesheets"])
-    engine.render
-  end
-
-  def self.render_coffee content
+  def self.render_coffee content, option
     require "coffee-script"
     CoffeeScript.compile content
   end
