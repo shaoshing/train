@@ -10,27 +10,31 @@ import (
 	"time"
 )
 
-type Helpers struct{}
+var HelperFuncs = template.FuncMap{
+	"javascript_tag":            JavascriptTag,
+	"stylesheet_tag":            StylesheetTag,
+	"stylesheet_tag_with_param": StylesheetTagWithParam,
+}
 
 const (
-	JavascriptTag = `<script src="%s"%s></script>`
-	StylesheetTag = `<link type="text/css" rel="stylesheet" href="%s"%s>`
+	javascriptTag = `<script src="%s"%s></script>`
+	stylesheetTag = `<link type="text/css" rel="stylesheet" href="%s"%s>`
 )
 
-func (this Helpers) JavascriptTag(name string) template.HTML {
+func JavascriptTag(name string) template.HTML {
 	assetUrl := "javascripts/" + name + ".js"
 	paths, mtimes := resolveAssetUrls(assetUrl)
-	return generateRawHtml(paths, "", mtimes, JavascriptTag)
+	return generateRawHtml(paths, "", mtimes, javascriptTag)
 }
 
-func (this Helpers) StylesheetTagWithParam(name string, param string) template.HTML {
+func StylesheetTagWithParam(name string, param string) template.HTML {
 	assetUrl := "stylesheets/" + name + ".css"
 	paths, mtimes := resolveAssetUrls(assetUrl)
-	return generateRawHtml(paths, param, mtimes, StylesheetTag)
+	return generateRawHtml(paths, param, mtimes, stylesheetTag)
 }
 
-func (this Helpers) StylesheetTag(name string) template.HTML {
-	return this.StylesheetTagWithParam(name, "")
+func StylesheetTag(name string) template.HTML {
+	return StylesheetTagWithParam(name, "")
 }
 
 func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
