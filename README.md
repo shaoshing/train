@@ -45,7 +45,7 @@ h1, h2{ padding:0; }
 assets/stylesheets/app.css
 ```css
 /*
- *= require reset
+ *= require stylesheets/base
  */
 
 body{...}
@@ -110,29 +110,26 @@ body{
 
 ### Template Helpers
 
-
 ```go
   import "github.com/shaoshing/train"
 
-  type Layout struct{
-    Train train.Helpers // Export Train helpers to templates
-  }
-
   func main() {
-    layout := Layout{Train: train.Helpers{}}
+    tmpl := template.New("index")
+    tmpl.Funcs(train.HelperFuncs)
+    tmpl.Parse(`
+    {{define "index"}}
+      {{javascript_tag "app"}}
 
-    html := `
-    {{.Layout.Train.JavascriptTag "app"}}
+      {{stylesheet_tag "app"}}
+    {{end}}
+    `)
 
-    {{.Layout.Train.StylesheetTag "app"}}
-    `
-    tmpl, _ := template.New("").Parse(html)
-    tmpl.Execute(os.Stdout, layout)
+    tmpl.Execute(os.Stdout, "index", nil)
     //
-    // <script src="/assets/javascripts/jquery.js?12345"></script>
+    // <script src="/assets/javascripts/base.js?12345"></script>
     // <script src="/assets/javascripts/app.js?12345"></script>
     //
-    // <link rel="stylesheet" href="/assets/stylesheets/reset.css?12345">
+    // <link rel="stylesheet" href="/assets/stylesheets/base.css?12345">
     // <link rel="stylesheet" href="/assets/stylesheets/app.css?12345">
   }
 ```
