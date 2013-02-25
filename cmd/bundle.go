@@ -67,9 +67,14 @@ func bundleAssets() {
 				ioutil.WriteFile(filePath, []byte(content), os.ModeDevice)
 			}
 		case ".sass", ".scss", ".coffee":
+			if path.Base(filePath)[0] == '_' {
+				return nil
+			}
+
 			content, err := train.ReadAsset(assetUrl)
 			if err != nil {
 				removeAssets()
+				fmt.Println("Error when reading asset: ", assetUrl)
 				panic(err)
 			}
 			compiledPath := strings.Replace(filePath, fileExt, mapCompiledExt[fileExt], 1)
