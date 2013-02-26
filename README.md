@@ -155,8 +155,8 @@ You can then use any web servers (nginx, apache, or the Go's file server) to ser
 The template helpers will also stop expanding files if it found the public assets folder. That is, the following code:
 
 ```html
-{{.Layout.Train.JavascriptTag "app"}}
-{{.Layout.Train.StylesheetTag "app"}}
+{{javascript_tag "app"}}
+{{stylesheet_tag "app"}}
 ```
 
 Will become:
