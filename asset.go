@@ -39,7 +39,6 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
 	}
-	return
 
 	return
 }
