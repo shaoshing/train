@@ -69,6 +69,10 @@ func asserUrlFromPath(assetPath string) (url string) {
 	url = strings.Replace(url, ".sass", ".css", 1)
 	url = strings.Replace(url, ".scss", ".css", 1)
 	url = strings.Replace(url, ".coffee", ".js", 1)
+    
+    if Config.BundleAssets {
+        url = manifestInfo[url]
+    }
 	return
 }
 
