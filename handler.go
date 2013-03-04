@@ -7,23 +7,42 @@ import (
 	"os"
 	"path"
 	"strings"
+    "fmt"
 )
 
 var assetServer *http.Handler
 var publicAssetServer *http.Handler
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+// func Handler(w http.ResponseWriter, r *http.Request) {
+//     setupFileServer()
+// 
+//     if IsInProduction() {
+//         fmt.Println("In Production\n")
+//         servePublicAssets(w, r)
+//     } else {
+//         serveAssets(w, r)
+//     }
+//     // return
+// }
+
+func Run() {
 	setupFileServer()
 
-	if HasPublicAssets() {
-		servePublicAssets(w, r)
+    var server func(w http.ResponseWriter, r *http.Request)
+	if Config.BundleAssets {
+        fmt.Println("Mode[Production]")
+		server = servePublicAssets
 	} else {
-		serveAssets(w, r)
+        fmt.Println("Mode[Development]")
+		server = serveAssets
 	}
-	return
+    
+    http.Handle(Config.AssetsUrl, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        server(w, r)
+    }))
 }
 
-func HasPublicAssets() bool {
+func IsInProduction() bool {
 	_, err := os.Stat("public" + Config.AssetsUrl)
 	return err == nil
 }

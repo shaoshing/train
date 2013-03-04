@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/shaoshing/train"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,13 +13,16 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+    "crypto/md5"
+    "launchpad.net/goyaml"
 )
 
 func main() {
-	removeAssets()
-	copyAssets()
-	bundleAssets()
-	compressAssets()
+    removeAssets()
+    copyAssets()
+    bundleAssets()
+    compressAssets()
+    fingerPrintAssets()
 }
 
 func removeAssets() {
@@ -95,26 +99,11 @@ func hasRequireDirectives(filePath string) bool {
 	return len(header) != 0
 }
 
-var minifiedFiles = regexp.MustCompile(`(min\.\w+$)|\/min\/`)
-
 func compressAssets() {
-	fmt.Println("-> compress assets")
-	var jsFiles, cssFiles []string
-	publicAssetPath := "public" + train.Config.AssetsUrl
-	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
-		fileExt := path.Ext(filePath)
-		if minifiedFiles.Match([]byte(filePath)) {
-			return nil
-		}
-		switch fileExt {
-		case ".js":
-			jsFiles = append(jsFiles, filePath)
-		case ".css":
-			cssFiles = append(cssFiles, filePath)
-		}
-		return nil
-	})
-
+    fmt.Println("-> compress assets")
+    
+	jsFiles, cssFiles := getCompiledAssets()
+    
 	compress(jsFiles, ".js$:.js")
 	compress(cssFiles, ".css$:.css")
 }
@@ -141,4 +130,72 @@ func compress(files []string, option string) {
 		fmt.Println("YUI Compressor error:", out.String())
 		panic(err)
 	}
+}
+
+var minifiedFiles = regexp.MustCompile(`(min\.\w+$)|\/min\/`)
+func getCompiledAssets() (jsFiles []string, cssFiles []string) {
+	publicAssetPath := "public" + train.Config.AssetsUrl
+	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
+		fileExt := path.Ext(filePath)
+		if minifiedFiles.Match([]byte(filePath)) {
+			return nil
+		}
+		switch fileExt {
+		case ".js":
+			jsFiles = append(jsFiles, filePath)
+		case ".css":
+			cssFiles = append(cssFiles, filePath)
+		}
+		return nil
+	})
+    
+    return
+}
+
+func fingerPrintAssets() {
+    fmt.Println("-> Fingerprinting Assets")
+    
+    assets, cssFiles := getCompiledAssets()
+    for _, file := range cssFiles {
+        assets = append(assets, file)
+    }
+    
+    fpAssets := train.FpAssets{}
+    for _, asset := range assets {
+        assetContent, err := ioutil.ReadFile(asset)
+        if err != nil { 
+            fmt.Printf("Fingerprint Error: %s\n", err)
+            return
+        }
+        
+        h := md5.New()
+        io.WriteString(h, string(assetContent))
+        fpStr := string(h.Sum(nil))
+        
+        dir, file := filepath.Split(asset)
+        ext := filepath.Ext(file)
+        filename := filepath.Base(file)
+        filename = filename[0:strings.LastIndex(filename, ext)]
+        
+        fpAsset := fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
+        
+        err = os.Rename(asset, fpAsset)
+        if err != nil { 
+            fmt.Printf("%s\n", err)
+            return
+        }
+        
+        fpAssets[asset[6:]] = fpAsset[6:]
+    }
+    
+    
+    d, err := goyaml.Marshal(&fpAssets)
+    if err != nil {
+        panic(err)
+    }
+    
+    err = ioutil.WriteFile("public/assets/manifest.yml", d, 0644)
+    if err != nil { 
+        panic(err)
+    }
 }
