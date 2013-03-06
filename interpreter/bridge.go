@@ -21,11 +21,11 @@ var Config struct {
 	}
 }
 
-func init() {
-	interpreter = NewInterpreter()
-}
-
 func Compile(filePath string) (result string, err error) {
+	if interpreter == nil {
+		interpreter = NewInterpreter()
+	}
+
 	fileExt := path.Ext(filePath)
 	switch fileExt {
 	case ".sass", ".scss", ".coffee":
