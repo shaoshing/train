@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -55,38 +56,50 @@ var patterns = map[string](map[string]*regexp.Regexp){
 }
 
 func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
-	var content string
-	content, err = ReadRawAsset(filePath, assetUrl)
-	if err != nil {
+	fileExt := path.Ext(filePath)
+	var cacheKey string
+	if cacheKey, err = generateCacheKey(filePath); err != nil {
+		err = errors.New("Asset Not Found: " + assetUrl)
 		return
 	}
 
-	fileExt := path.Ext(filePath)
-	header := FindDirectivesHeader(&content, fileExt)
-
-	if len(header) != 0 {
-		content = strings.Replace(content, header, "", 1)
-
-		for _, line := range strings.Split(header, "\n") {
-			if !patterns[fileExt]["require"].Match([]byte(line)) {
-				continue
-			}
-
-			requiredAssetUrl := string(patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte("")))
-			if len(requiredAssetUrl) == 0 {
-				continue
-			}
-
-			var paths []string
-			requiredFilePath := ResolvePath(requiredAssetUrl + fileExt)
-			paths, err = ReadAssetsFunc(requiredFilePath, requiredAssetUrl+fileExt, found)
-			if err != nil {
-				err = errors.New(fmt.Sprintf("%s\n--- required by %s", err.Error(), assetUrl))
-				return
-			}
-
-			filePaths = append(filePaths, paths...)
+	requiredAssetUrls, content, hit := readFromCache(cacheKey)
+	if !hit {
+		content, err = ReadRawAsset(filePath, assetUrl)
+		if err != nil {
+			return
 		}
+		header := FindDirectivesHeader(&content, fileExt)
+
+		if len(header) != 0 {
+			content = strings.Replace(content, header, "", 1)
+
+			for _, line := range strings.Split(header, "\n") {
+				if !patterns[fileExt]["require"].Match([]byte(line)) {
+					continue
+				}
+
+				requiredAssetUrl := string(patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte("")))
+				if len(requiredAssetUrl) == 0 {
+					continue
+				}
+
+				requiredAssetUrls = append(requiredAssetUrls, requiredAssetUrl)
+			}
+		}
+		writeToCache(cacheKey, requiredAssetUrls, content)
+	}
+
+	for _, requiredAssetUrl := range requiredAssetUrls {
+		var paths []string
+		requiredFilePath := ResolvePath(requiredAssetUrl + fileExt)
+		paths, err = ReadAssetsFunc(requiredFilePath, requiredAssetUrl+fileExt, found)
+		if err != nil {
+			err = errors.New(fmt.Sprintf("%s\n--- required by %s", err.Error(), assetUrl))
+			return
+		}
+
+		filePaths = append(filePaths, paths...)
 	}
 
 	found(filePath, content)
@@ -136,4 +149,34 @@ func ReadRawAsset(filePath, assetUrl string) (result string, err error) {
 	result = string(content)
 
 	return
+}
+
+type AssetCache struct {
+	RequiredUrls []string
+	Content      string
+}
+
+var assetsCache = make(map[string]AssetCache)
+
+func generateCacheKey(filePath string) (key string, err error) {
+	var info os.FileInfo
+	info, err = os.Stat(filePath)
+	if err != nil {
+		return
+	}
+	key = filePath + strconv.FormatInt(info.ModTime().Unix(), 10)
+	return
+}
+
+func readFromCache(key string) (requiredUrls []string, content string, hit bool) {
+	var cache AssetCache
+	if cache, hit = assetsCache[key]; hit {
+		requiredUrls = cache.RequiredUrls
+		content = cache.Content
+	}
+	return
+}
+
+func writeToCache(key string, requiredUrls []string, content string) {
+	assetsCache[key] = AssetCache{requiredUrls, content}
 }
