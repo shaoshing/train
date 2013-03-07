@@ -10,8 +10,11 @@ import (
 	"path"
 	"runtime"
 	"strings"
+	"strconv"
+	"syscall"
 )
 
+// TODO: need refactor
 var interpreter *Interpreter
 
 var Config struct {
@@ -19,10 +22,6 @@ var Config struct {
 		DebugInfo   bool
 		LineNumbers bool
 	}
-}
-
-func init() {
-	interpreter = NewInterpreter()
 }
 
 func Compile(filePath string) (result string, err error) {
@@ -37,6 +36,7 @@ func Compile(filePath string) (result string, err error) {
 	default:
 		err = errors.New("Unsupported format (" + filePath + "). Valid formats are: sass.")
 	}
+	
 	return
 }
 
@@ -47,12 +47,13 @@ type Interpreter struct {
 	socketName string
 }
 
-func NewInterpreter() *Interpreter {
+func NewInterpreter() {
 	var i Interpreter
 	_, goFile, _, _ := runtime.Caller(0)
 	i.socketName = "/tmp/train.interpreter.socket"
 	i.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb")
 	i.cmd.Stdout = &StdoutCapturer{&i}
+	
 	go func() {
 		err := i.cmd.Run()
 		if err != nil {
@@ -60,7 +61,28 @@ func NewInterpreter() *Interpreter {
 		}
 	}()
 
-	return &i
+	// return &i
+	interpreter = &i
+}
+
+func CloseInterpreter() {
+	_, goFile, _, _ := runtime.Caller(0)
+	dat, err := ioutil.ReadFile(path.Dir(goFile) + "/interpreter.pid")
+	if err != nil { 
+	    panic(err)
+	}
+	
+	pid, err := strconv.Atoi(string(dat))
+	if err != nil { 
+	    panic(err)
+	}
+	
+	err = syscall.Kill(pid, syscall.Signal(9))
+	if err != nil {
+		panic(err)
+	}
+	
+	interpreter = nil
 }
 
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
@@ -97,6 +119,7 @@ func (this *Interpreter) Wait() {
 	}
 	c := make(chan bool)
 	this.queue = append(this.queue, c)
+	
 	<-c
 }
 

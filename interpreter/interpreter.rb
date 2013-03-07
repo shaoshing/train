@@ -5,6 +5,11 @@ class Interpreter
 
   def self.run
     server = listen
+    
+    # TODO: support multiple interpreters
+    File.open("#{File.dirname(__FILE__)}/interpreter.pid", 'w') do |file|
+      file << Process.pid
+    end
 
     loop {
       client = server.accept
@@ -22,6 +27,7 @@ class Interpreter
   end
 
   private
+  
   def self.listen
     begin
       `rm -f #{SOCKET_NAME}`
@@ -34,7 +40,6 @@ class Interpreter
       exit 1
     end
   end
-
 
   def self.read_all client
     data = ""

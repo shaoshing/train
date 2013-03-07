@@ -33,6 +33,9 @@ func ReadAsset(assetUrl string) (result string, err error) {
 			result, err = ReadRawAsset(filePath, assetUrl)
 		}
 	case ".sass", ".scss", ".coffee":
+		if !connectingInterpreter {
+			connectIntrepreter()
+		}
 		interpreter.Config.SASS.LineNumbers = Config.SASS.LineNumbers
 		interpreter.Config.SASS.DebugInfo = Config.SASS.DebugInfo
 		result, err = interpreter.Compile(filePath)
@@ -41,6 +44,19 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	}
 
 	return
+}
+
+var connectingInterpreter = false
+
+func connectIntrepreter() {
+	interpreter.NewInterpreter()
+	connectingInterpreter = true
+}
+
+// must be invoked even train is not running.
+func stopConnectInterpreter() {
+	interpreter.CloseInterpreter()
+	connectingInterpreter = false
 }
 
 var patterns = map[string](map[string]*regexp.Regexp){
