@@ -14,43 +14,32 @@ import (
 var httpClient = http.Client{}
 var httpServer *httptest.Server
 
-// var serverCount = 0
-// func startServer() {
-// 	if serverCount  {
-// 		// body
-// 	}
-// 	
-// 	serverCount++
-// 	if httpServer != nil {
-// 		return
-// 	}
-// 	
-// 	
-// 	// httptest.NewServer(http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {}))
-// }
-
-// func stopServer() {
-// 	serverCount--
-// 	if serverCount > 0 {
-// 		return
-// 	}
-// 	println("Stop Server")
-// 	httpServer.Close()
-// }
-
-func init() {
+func initServer() {
+	http.DefaultServeMux = http.NewServeMux()
 	Run()
-	
 	httpServer = httptest.NewServer(nil)
 }
 
-func TestHandler(t *testing.T) {
+var exitTestCount = 2
+func cleanupHandlerTest() {
+	if exitTestCount > 0 {
+		exitTestCount--
+	} else {
+		httpServer.Close()
+		Stop()
+	}
+}
+
+func TestDeliverUnbundledAssets(t *testing.T) {
+	initServer()
+	defer cleanupHandlerTest()
+	
 	assert.Test = t
 	Config.BundleAssets = true
 
 	assertAsset("/assets/static.txt", "static.txt\n", "text/plain")
 	assertAsset("/assets/images/dummy.png", "dummy\n", "image/png")
-	// assert404("/assets/not/found.js")
+	assert404("/assets/not/found.js")
 
 	assertAsset("/assets/javascripts/normal.js", "normal.js\n", "application/javascript")
 	assertAsset("/assets/stylesheets/normal.css", "normal.css\n", "text/css")
@@ -98,11 +87,19 @@ h3 {
 	assert.Equal(500, status)
 }
 
-func TestBundledAssets(t *testing.T) {
+func TestDeliverBundledAssets(t *testing.T) {
+	Config.BundleAssets = true
+	initServer()
+	defer cleanupHandlerTest()
+
 	assert.Test = t
 	exec.Command("cp", "-rf", "assets/public", "./").Run()
-	defer exec.Command("rm", "-rf", "public").Run()
+	defer func() {
+		exec.Command("rm", "-rf", "public").Run()
+		Config.BundleAssets = false
+	}()
 
+	
 	assertAsset("/assets/app.js", "app.js\n", "application/javascript")
 	assert404("/assets/normal.js")
 }
