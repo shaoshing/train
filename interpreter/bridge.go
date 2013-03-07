@@ -67,7 +67,18 @@ func NewInterpreter() {
 
 func CloseInterpreter() {
 	_, goFile, _, _ := runtime.Caller(0)
-	dat, err := ioutil.ReadFile(path.Dir(goFile) + "/interpreter.pid")
+	pidFile := path.Dir(goFile) + "/interpreter.pid"
+	
+	if _, err := os.Stat(pidFile); err != nil && os.IsNotExist(err) {
+		return
+	}
+	
+	dat, err := ioutil.ReadFile(pidFile)
+	if err != nil { 
+	    panic(err)
+	}
+	
+	err = exec.Command("rm", pidFile).Run()
 	if err != nil { 
 	    panic(err)
 	}

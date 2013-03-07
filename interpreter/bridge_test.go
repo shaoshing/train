@@ -5,7 +5,22 @@ import (
 	"testing"
 )
 
+var closingCount int
+func closeTestInterpreter() {
+	if closingCount == 0 {
+		CloseInterpreter()
+	}
+}
+
+func init() {
+	closingCount = 2
+	NewInterpreter()
+}
+
 func TestSass(t *testing.T) {
+	closingCount--
+	defer closeTestInterpreter()
+
 	assert.Test = t
 
 	css, e := Compile("assets/stylesheets/app.sass")
@@ -36,6 +51,9 @@ func TestSass(t *testing.T) {
 }
 
 func TestCoffee(t *testing.T) {
+	closingCount--
+	defer closeTestInterpreter()
+	
 	assert.Test = t
 
 	css, e := Compile("assets/javascripts/app.coffee")
