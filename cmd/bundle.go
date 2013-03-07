@@ -38,7 +38,7 @@ func prepareEnv() bool {
 			panic(err)
 		}
 	} else if !public.IsDir() {
-		fmt.Println("Can't create public directory automatically because a file with the same name already exists.\nPlease consider rename your file or create the directory manually.")
+		fmt.Println("Can't create public directory automatically because a file with the same name already exists.\nPlease consider renaming your file or moving it to another folder.")
 		return false
 	}
 	
@@ -124,7 +124,7 @@ func hasRequireDirectives(filePath string) bool {
 func compressAssets() {
 	fmt.Println("-> compress assets")
 	
-	jsFiles, cssFiles := getCompiledAssets()
+	jsFiles, cssFiles := getCompiledAssets(regexp.MustCompile(`(min\.\w+$)|\/min\/`))
 	
 	compress(jsFiles, ".js$:.js")
 	compress(cssFiles, ".css$:.css")
@@ -154,12 +154,12 @@ func compress(files []string, option string) {
 	}
 }
 
-var minifiedFiles = regexp.MustCompile(`(min\.\w+$)|\/min\/`)
-func getCompiledAssets() (jsFiles []string, cssFiles []string) {
+
+func getCompiledAssets(filter *regexp.Regexp) (jsFiles []string, cssFiles []string) {
 	publicAssetPath := "public" + train.Config.AssetsUrl
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
 		fileExt := path.Ext(filePath)
-		if minifiedFiles.Match([]byte(filePath)) {
+		if filter != nil && filter.Match([]byte(filePath)) {
 			return nil
 		}
 		switch fileExt {
@@ -177,7 +177,7 @@ func getCompiledAssets() (jsFiles []string, cssFiles []string) {
 func fingerPrintAssets() {
 	fmt.Println("-> Fingerprinting Assets")
 	
-	assets, cssFiles := getCompiledAssets()
+	assets, cssFiles := getCompiledAssets(nil)
 	for _, file := range cssFiles {
 		assets = append(assets, file)
 	}
@@ -209,7 +209,6 @@ func fingerPrintAssets() {
 		
 		fpAssets[asset[6:]] = fpAsset[6:]
 	}
-	
 	
 	d, err := goyaml.Marshal(&fpAssets)
 	if err != nil {

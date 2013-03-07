@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/shaoshing/gotest"
+	"github.com/shaoshing/train"
 	"io/ioutil"
 	"testing"
 )
@@ -16,8 +17,13 @@ func assertEqual(path, content string) {
 
 func TestCommand(t *testing.T) {
 	assert.Test = t
+	
+	if !prepareEnv() {
+		t.FailNow()
+	}
+	
 	copyAssets()
-	defer removeAssets()
+	defer train.Stop()
 
 	assertEqual("public/assets/javascripts/normal.js", "normal.js\n")
 	assertEqual("public/assets/javascripts/require.js", `//= require javascripts/normal
@@ -82,4 +88,6 @@ Me
 `)
 	assertEqual("public/assets/stylesheets/font.css", `h1{color:green}`)
 	assertEqual("public/assets/javascripts/app.js", `(function(){var b;b=12}).call(this);`)
+	
+	removeAssets()
 }
