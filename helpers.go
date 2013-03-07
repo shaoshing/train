@@ -39,21 +39,25 @@ func StylesheetTag(name string) template.HTML {
 
 func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 	filePath := ResolvePath(assetUrl)
-	fileExt := path.Ext(filePath)
 	var paths []string
 
-	if fileExt == ".js" || fileExt == ".css" {
-		var err error
-		paths, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
-		if err != nil {
-			panic(err)
-		}
-
-		if Config.BundleAssets {
-			paths = paths[len(paths)-1:]
-		}
-	} else {
+	if HasPublicAssets() {
 		paths = append(paths, filePath)
+	} else {
+		fileExt := path.Ext(filePath)
+		if fileExt == ".js" || fileExt == ".css" {
+			var err error
+			paths, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
+			if err != nil {
+				panic(err)
+			}
+
+			if Config.BundleAssets {
+				paths = paths[len(paths)-1:]
+			}
+		} else {
+			paths = append(paths, filePath)
+		}
 	}
 
 	for _, assetPath := range paths {
