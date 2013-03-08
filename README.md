@@ -92,6 +92,8 @@ body{
 
 By now, `train` only support http.DefaultServeMux, custom ServeMux will be soon be support in the next version.
 
+By default, train will register '/assets/' http url pattern, if you want to use another url prefix, please reconfig it before calling `Run`.
+
 ### Run
 
 ```go
@@ -110,6 +112,27 @@ By now, `train` only support http.DefaultServeMux, custom ServeMux will be soon 
       fmt.Println("Listening to localhost:8000")
       http.ListenAndServe(":8000", nil)
   }
+```
+
+### Reconfig Assets URL
+
+```go
+package main
+
+import (
+  "fmt"
+  "github.com/shaoshing/train"
+  "net/http"
+)
+
+func main() {
+    train.Config.AssetsUrl = "/custom/path"
+    train.Run()
+    defer Train.Stop()
+      
+    fmt.Println("Listening to localhost:8000")
+    http.ListenAndServe(":8000", nil)
+}
 ```
 
 ### Template Helpers
