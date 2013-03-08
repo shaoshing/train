@@ -1,24 +1,25 @@
 package train
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strings"
 )
 
 type FpAssets map[string]string
 
-var manifestInfo = make(FpAssets)
+var manifestInfo FpAssets
 
 const (
 	ManifestPath      = "public/assets/manifest.txt"
 	ManifestSeparator = "  ->  "
 )
 
-func initManifestInfo() {
+func LoadManifestInfo() error {
+	manifestInfo = make(FpAssets)
+
 	content, err := ioutil.ReadFile(ManifestPath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for _, line := range strings.Split(string(content), "\n") {
@@ -28,6 +29,7 @@ func initManifestInfo() {
 		}
 		manifestInfo[info[0]] = info[1]
 	}
+	return nil
 }
 
 func WriteToManifest(fpAssets FpAssets) (err error) {

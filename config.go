@@ -1,5 +1,9 @@
 package train
 
+import (
+	"fmt"
+)
+
 type config struct {
 	AssetsPath   string
 	AssetsUrl    string
@@ -20,7 +24,9 @@ var Config config = config{
 func init() {
 	Config.BundleAssets = IsInProduction()
 
-	if Config.BundleAssets {
-		initManifestInfo()
+	if IsInProduction() {
+		if err := LoadManifestInfo(); err != nil {
+			fmt.Println("== Could not load manifest from public/assets/")
+		}
 	}
 }
