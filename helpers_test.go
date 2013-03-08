@@ -11,7 +11,7 @@ import (
 
 func TestHelpers(t *testing.T) {
 	defer Stop()
-	
+
 	assert.Test = t
 	Config.BundleAssets = false
 	now := time.Now()
@@ -37,10 +37,10 @@ func TestHelpers(t *testing.T) {
 
 	Config.BundleAssets = true
 	manifestInfo = FpAssets{
-		"/assets/javascripts/require.js": "/assets/javascripts/require-fingerprintinghash.js",
+		"/assets/javascripts/require.js":  "/assets/javascripts/require-fingerprintinghash.js",
 		"/assets/stylesheets/require.css": "/assets/stylesheets/require-fingerprintinghash.css",
 	}
-	 
+
 	assert.Equal(`<script src="/assets/javascripts/require-fingerprintinghash.js"></script>`, string(JavascriptTag("require")))
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require-fingerprintinghash.css">`, string(StylesheetTag("require")))
 

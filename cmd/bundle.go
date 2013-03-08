@@ -2,10 +2,12 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
 	"fmt"
 	"github.com/shaoshing/train"
 	"io"
 	"io/ioutil"
+	"launchpad.net/goyaml"
 	"os"
 	"os/exec"
 	"path"
@@ -13,8 +15,6 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
-	"crypto/md5"
-	"launchpad.net/goyaml"
 )
 
 func main() {
@@ -30,24 +30,24 @@ func main() {
 }
 
 func prepareEnv() bool {
-	public, err := os.Stat("public");
-	
+	public, err := os.Stat("public")
+
 	if err != nil && os.IsNotExist(err) {
 		err := os.Mkdir("public", os.FileMode(0777))
-		if err != nil { 
+		if err != nil {
 			panic(err)
 		}
 	} else if !public.IsDir() {
 		fmt.Println("Can't create public directory automatically because a file with the same name already exists.\nPlease consider renaming your file or moving it to another folder.")
 		return false
 	}
-	
+
 	return true
 }
 
 func removeAssets() {
 	fmt.Println("-> clean bundled assets")
-	
+
 	err := exec.Command("rm", "-rf", "public"+train.Config.AssetsUrl).Run()
 	if err != nil {
 		panic(err)
@@ -56,7 +56,7 @@ func removeAssets() {
 
 func copyAssets() {
 	fmt.Println("-> copy assets from", train.Config.AssetsPath)
-	
+
 	err := exec.Command("cp", "-rf", train.Config.AssetsPath, "public"+train.Config.AssetsUrl).Run()
 	if err != nil {
 		panic(err)
@@ -123,9 +123,9 @@ func hasRequireDirectives(filePath string) bool {
 
 func compressAssets() {
 	fmt.Println("-> compress assets")
-	
+
 	jsFiles, cssFiles := getCompiledAssets(regexp.MustCompile(`(min\.\w+$)|\/min\/`))
-	
+
 	compress(jsFiles, ".js$:.js")
 	compress(cssFiles, ".css$:.css")
 }
@@ -154,7 +154,6 @@ func compress(files []string, option string) {
 	}
 }
 
-
 func getCompiledAssets(filter *regexp.Regexp) (jsFiles []string, cssFiles []string) {
 	publicAssetPath := "public" + train.Config.AssetsUrl
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
@@ -170,53 +169,53 @@ func getCompiledAssets(filter *regexp.Regexp) (jsFiles []string, cssFiles []stri
 		}
 		return nil
 	})
-	
+
 	return
 }
 
 func fingerPrintAssets() {
 	fmt.Println("-> Fingerprinting Assets")
-	
+
 	assets, cssFiles := getCompiledAssets(nil)
 	for _, file := range cssFiles {
 		assets = append(assets, file)
 	}
-	
+
 	fpAssets := train.FpAssets{}
 	for _, asset := range assets {
 		assetContent, err := ioutil.ReadFile(asset)
-		if err != nil { 
+		if err != nil {
 			fmt.Printf("Fingerprint Error: %s\n", err)
 			return
 		}
-		
+
 		h := md5.New()
 		io.WriteString(h, string(assetContent))
 		fpStr := string(h.Sum(nil))
-		
+
 		dir, file := filepath.Split(asset)
 		ext := filepath.Ext(file)
 		filename := filepath.Base(file)
 		filename = filename[0:strings.LastIndex(filename, ext)]
-		
+
 		fpAsset := fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
-		
+
 		err = os.Rename(asset, fpAsset)
-		if err != nil { 
+		if err != nil {
 			fmt.Printf("%s\n", err)
 			return
 		}
-		
+
 		fpAssets[asset[6:]] = fpAsset[6:]
 	}
-	
+
 	d, err := goyaml.Marshal(&fpAssets)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	err = ioutil.WriteFile("public/assets/manifest.yml", d, 0644)
-	if err != nil { 
+	if err != nil {
 		panic(err)
 	}
 }

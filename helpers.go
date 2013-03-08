@@ -41,7 +41,7 @@ func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 	if Config.BundleAssets {
 		return getBundledAssets(assetUrl)
 	}
-	
+
 	return getUnbundledAssets(assetUrl)
 }
 
@@ -69,9 +69,9 @@ func getUnbundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
 }
 
 func getBundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
-	urls = []string{manifestInfo[Config.AssetsUrl + assetUrl]}
+	urls = []string{manifestInfo[Config.AssetsUrl+assetUrl]}
 	mtimes = nil
-	
+
 	return
 }
 
@@ -80,7 +80,7 @@ func asserUrlFromPath(assetPath string) (url string) {
 	url = strings.Replace(url, ".sass", ".css", 1)
 	url = strings.Replace(url, ".scss", ".css", 1)
 	url = strings.Replace(url, ".coffee", ".js", 1)
-	
+
 	return
 }
 

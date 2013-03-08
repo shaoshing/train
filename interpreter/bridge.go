@@ -5,14 +5,14 @@ import (
 	"errors"
 	"io/ioutil"
 	"net"
+	"os"
 	"os/exec"
 	"path"
 	"runtime"
-	"strings"
 	"strconv"
-	"os"
-	"syscall"
+	"strings"
 	"sync"
+	"syscall"
 )
 
 const RUBY_INTERPRETER_SOCKET_NAME = "/tmp/train.interpreter.socket"
@@ -44,33 +44,33 @@ func Compile(filePath string) (result string, err error) {
 	default:
 		err = errors.New("Unsupported format (" + filePath + "). Valid formats are: sass.")
 	}
-	
+
 	return
 }
 
 func CloseInterpreter() {
 	_, goFile, _, _ := runtime.Caller(0)
 	pidFile := path.Dir(goFile) + "/interpreter.pid"
-	
+
 	if _, err := os.Stat(pidFile); err != nil && os.IsNotExist(err) {
 		return
 	}
-	
+
 	dat, err := ioutil.ReadFile(pidFile)
-	if err != nil { 
-	    panic(err)
+	if err != nil {
+		panic(err)
 	}
-	
+
 	err = exec.Command("rm", pidFile).Run()
-	if err != nil { 
-	    panic(err)
+	if err != nil {
+		panic(err)
 	}
-	
+
 	pid, err := strconv.Atoi(string(dat))
-	if err != nil { 
-	    panic(err)
+	if err != nil {
+		panic(err)
 	}
-	
+
 	err = syscall.Kill(pid, syscall.Signal(9))
 	if err != nil {
 		panic(err)

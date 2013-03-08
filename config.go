@@ -3,7 +3,7 @@ package train
 type config struct {
 	AssetsPath   string
 	AssetsUrl    string
-    BundleAssets bool
+	BundleAssets bool
 	SASS         sassConfig
 }
 
@@ -18,9 +18,9 @@ var Config config = config{
 }
 
 func init() {
-    Config.BundleAssets = IsInProduction()
-    
-    if Config.BundleAssets {
-        initManifestInfo()
-    }
+	Config.BundleAssets = IsInProduction()
+
+	if Config.BundleAssets {
+		initManifestInfo()
+	}
 }

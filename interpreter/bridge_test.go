@@ -6,6 +6,7 @@ import (
 )
 
 var closingCount = 2
+
 func closeTestInterpreter() {
 	if closingCount == 0 {
 		CloseInterpreter()
@@ -48,7 +49,7 @@ func TestSass(t *testing.T) {
 func TestCoffee(t *testing.T) {
 	closingCount--
 	defer closeTestInterpreter()
-	
+
 	assert.Test = t
 
 	css, e := Compile("assets/javascripts/app.coffee")

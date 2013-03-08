@@ -8,20 +8,20 @@ import (
 )
 
 func main() {
-    // train.Config.BundleAssets = true
+	// train.Config.BundleAssets = true
 
-    // http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
-    train.ConfigureHttpHandler(nil)
+	// http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
+	train.ConfigureHttpHandler(nil)
 	defer train.Stop()
-	
+
 	http.HandleFunc("/", example)
-    
+
 	fmt.Println("Listening to localhost:8000")
 	err := http.ListenAndServe(":8000", nil)
-    if err != nil { 
-        fmt.Printf("%s\n", err)
-        return
-    }
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
 }
 
 func example(w http.ResponseWriter, r *http.Request) {
