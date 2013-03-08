@@ -89,7 +89,7 @@ h3 {
 }
 
 func TestDeliverBundledAssets(t *testing.T) {
-	Config.BundleAssets = true
+	Config.Mode = ProductionMode
 	initServer()
 	defer cleanupHandlerTest()
 
@@ -97,7 +97,7 @@ func TestDeliverBundledAssets(t *testing.T) {
 	exec.Command("cp", "-rf", "assets/public", "./").Run()
 	defer func() {
 		exec.Command("rm", "-rf", "public").Run()
-		Config.BundleAssets = false
+		Config.Mode = DevelopmentMode
 	}()
 
 	assertAsset("/assets/app.js", "app.js\n", "application/javascript")

@@ -35,7 +35,10 @@ func TestHelpers(t *testing.T) {
 	assert.Equal(`<script src="/assets/javascripts/app.js?`+stamp+`"></script>`, string(JavascriptTag("app")))
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/app.css?`+stamp+`">`, string(StylesheetTag("app")))
 
-	Config.BundleAssets = true
+	Config.Mode = ProductionMode
+	defer func() {
+		Config.Mode = DevelopmentMode
+	}()
 	ManifestInfo = FpAssets{
 		"/assets/javascripts/require.js":  "/assets/javascripts/require-fingerprintinghash.js",
 		"/assets/stylesheets/require.css": "/assets/stylesheets/require-fingerprintinghash.css",
@@ -44,7 +47,6 @@ func TestHelpers(t *testing.T) {
 	assert.Equal(`<script src="/assets/javascripts/require-fingerprintinghash.js"></script>`, string(JavascriptTag("require")))
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require-fingerprintinghash.css">`, string(StylesheetTag("require")))
 
-	Config.BundleAssets = false
 	ManifestInfo = FpAssets{}
 }
 

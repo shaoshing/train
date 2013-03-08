@@ -4,19 +4,12 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"path"
 	"strings"
-	// "fmt"
 )
 
 var assetServer *http.Handler
 var publicAssetServer *http.Handler
-
-func IsInProduction() bool {
-	_, err := os.Stat("public" + Config.AssetsUrl)
-	return err == nil
-}
 
 func servePublicAssets(w http.ResponseWriter, r *http.Request) {
 	(*publicAssetServer).ServeHTTP(w, r)

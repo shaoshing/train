@@ -38,10 +38,9 @@ func StylesheetTag(name string) template.HTML {
 }
 
 func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
-	if Config.BundleAssets {
+	if IsInProduction() {
 		return getBundledAssets(assetUrl)
 	}
-
 	return getUnbundledAssets(assetUrl)
 }
 

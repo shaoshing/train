@@ -15,7 +15,7 @@ func ConfigureHttpHandler(serveMux *http.ServeMux) {
 	}
 
 	var server func(w http.ResponseWriter, r *http.Request)
-	if Config.BundleAssets {
+	if IsInProduction() {
 		fmt.Println("[Production]Serving assets from ./public/assets:\n")
 		server = servePublicAssets
 	} else {
