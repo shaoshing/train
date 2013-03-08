@@ -16,10 +16,10 @@ func ConfigureHttpHandler(serveMux *http.ServeMux) {
 
 	var server func(w http.ResponseWriter, r *http.Request)
 	if IsInProduction() {
-		fmt.Println("[Production]Serving assets from ./public/assets:\n")
+		fmt.Println("[Production] Serving assets from ./public/assets")
 		server = servePublicAssets
 	} else {
-		fmt.Println("[Development]Serving assets from ./assets:\n")
+		fmt.Println("[Development] Serving assets from ./assets")
 		server = serveAssets
 	}
 
