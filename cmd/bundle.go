@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/md5"
 	"errors"
 	"fmt"
@@ -19,7 +18,12 @@ import (
 
 const CompressorFileName = "yuicompressor-2.4.7.jar"
 
-func main() {
+var Helps = `Available commands:
+	 bundle: [default]
+   upgrade: get and install latest train.
+`
+
+func bundle() {
 	if !prepareEnv() {
 		return
 	}
@@ -212,15 +216,5 @@ func GetHashedAsset(assetPath string) (hashedPath string, content []byte, err er
 	filename = filename[0:strings.LastIndex(filename, ext)]
 
 	hashedPath = fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
-	return
-}
-
-func bash(bash string) (out string, err error) {
-	cmd := exec.Command("sh", "-c", bash)
-	var buf bytes.Buffer
-	cmd.Stderr = &buf
-	cmd.Stdout = &buf
-	err = cmd.Run()
-	out = buf.String()
 	return
 }
