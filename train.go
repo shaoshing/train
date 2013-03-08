@@ -2,26 +2,30 @@ package train
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/shaoshing/train/interpreter"
+	"net/http"
 )
 
-func Run() {
+// setting serveMux to nil will use http.DefaultServeMux instead.
+func Run(serveMux *http.ServeMux) {
 	setupFileServer()
 
-    var server func(w http.ResponseWriter, r *http.Request)
+	if serveMux == nil {
+		serveMux = http.DefaultServeMux
+	}
+
+	var server func(w http.ResponseWriter, r *http.Request)
 	if Config.BundleAssets {
-        fmt.Println("[Production]Serving assets from ./public/assets:\n")
+		fmt.Println("[Production]Serving assets from ./public/assets:\n")
 		server = servePublicAssets
 	} else {
-        fmt.Println("[Development]Serving assets from ./assets:\n")
+		fmt.Println("[Development]Serving assets from ./assets:\n")
 		server = serveAssets
 	}
-    
-	// TODO: support custom ServeMux
-    http.Handle(Config.AssetsUrl, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        server(w, r)
-    }))
+
+	serveMux.Handle(Config.AssetsUrl, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server(w, r)
+	}))
 }
 
 func Stop() {
