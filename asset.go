@@ -119,6 +119,12 @@ var mapAlterExtensions = map[string]string{
 	".js":  ".coffee",
 }
 
+// Find possible asset files.
+// url = javascripts/asset.js
+// if url exist
+// => javascript/asset.js
+// or url alternation exist
+// => javascript/asset.coffee
 func ResolvePath(assetUrl string) (assetPath string) {
 	assetPath = string(strings.Replace(assetUrl, Config.AssetsUrl, "", 1))
 	assetPath = path.Clean(Config.AssetsPath + "/" + assetPath)
