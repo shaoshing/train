@@ -1,15 +1,15 @@
 require "socket"
 
+PID = ARGV[1]
+File.open(PID, 'w') do |file|
+  file << Process.pid
+end
+
 class Interpreter
-  SOCKET_NAME = "/tmp/train.interpreter.socket"
+  SOCKET_NAME = ARGV[0]
 
   def self.run
     server = listen
-    
-    # TODO: support multiple interpreters
-    File.open("#{File.dirname(__FILE__)}/interpreter.pid", 'w') do |file|
-      file << Process.pid
-    end
 
     loop {
       client = server.accept
@@ -27,7 +27,7 @@ class Interpreter
   end
 
   private
-  
+
   def self.listen
     begin
       `rm -f #{SOCKET_NAME}`

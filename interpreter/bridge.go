@@ -13,9 +13,8 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 )
-
-const RUBY_INTERPRETER_SOCKET_NAME = "/tmp/train.interpreter.socket"
 
 type Interpreter struct {
 	cmd     *exec.Cmd
@@ -23,7 +22,17 @@ type Interpreter struct {
 	mutex   sync.Mutex
 }
 
-var interpreter Interpreter
+var (
+	interpreter           Interpreter
+	interpreterSocketName string
+	interpreterPid        string
+)
+
+func init() {
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	interpreterSocketName = "/tmp/train.interpreter." + timestamp + ".socket"
+	interpreterPid = "/tmp/train.interpreter." + timestamp + ".pid"
+}
 
 var Config struct {
 	SASS struct {
@@ -49,19 +58,16 @@ func Compile(filePath string) (result string, err error) {
 }
 
 func CloseInterpreter() {
-	_, goFile, _, _ := runtime.Caller(0)
-	pidFile := path.Dir(goFile) + "/interpreter.pid"
-
-	if _, err := os.Stat(pidFile); err != nil && os.IsNotExist(err) {
+	if _, err := os.Stat(interpreterPid); err != nil && os.IsNotExist(err) {
 		return
 	}
 
-	dat, err := ioutil.ReadFile(pidFile)
+	dat, err := ioutil.ReadFile(interpreterPid)
 	if err != nil {
 		panic(err)
 	}
 
-	err = exec.Command("rm", pidFile).Run()
+	err = exec.Command("rm", interpreterPid).Run()
 	if err != nil {
 		panic(err)
 	}
@@ -80,7 +86,7 @@ func CloseInterpreter() {
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
 	this.StartRubyInterpreter()
 
-	conn, err := net.Dial("unix", RUBY_INTERPRETER_SOCKET_NAME)
+	conn, err := net.Dial("unix", interpreterSocketName)
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +117,7 @@ func (this *Interpreter) StartRubyInterpreter() {
 	this.mutex.Lock()
 
 	_, goFile, _, _ := runtime.Caller(0)
-	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb")
+	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", interpreterSocketName, interpreterPid)
 	waitForStarting := make(chan bool)
 	this.cmd.Stdout = &StdoutCapturer{waitForStarting}
 	go func() {
