@@ -5,17 +5,24 @@ import (
 	"errors"
 	"io/ioutil"
 	"net"
-	"os"
 	"os/exec"
 	"path"
 	"runtime"
 	"strings"
 	"strconv"
 	"syscall"
+	"sync"
 )
 
-// TODO: need refactor
-var interpreter *Interpreter
+const RUBY_INTERPRETER_SOCKET_NAME = "/tmp/train.interpreter.socket"
+
+type Interpreter struct {
+	cmd     *exec.Cmd
+	started bool
+	mutex   sync.Mutex
+}
+
+var interpreter Interpreter
 
 var Config struct {
 	SASS struct {
@@ -38,13 +45,6 @@ func Compile(filePath string) (result string, err error) {
 	}
 	
 	return
-}
-
-type Interpreter struct {
-	cmd        *exec.Cmd
-	ready      bool
-	queue      []chan bool
-	socketName string
 }
 
 func NewInterpreter() {
@@ -97,11 +97,9 @@ func CloseInterpreter() {
 }
 
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
-	if !this.ready {
-		this.Wait()
-	}
+	this.StartRubyInterpreter()
 
-	conn, err := net.Dial("unix", this.socketName)
+	conn, err := net.Dial("unix", RUBY_INTERPRETER_SOCKET_NAME)
 	if err != nil {
 		panic(err)
 	}
@@ -124,33 +122,37 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 	return
 }
 
-func (this *Interpreter) Wait() {
-	if this.ready {
+func (this *Interpreter) StartRubyInterpreter() {
+	if this.started {
 		return
 	}
-	c := make(chan bool)
-	this.queue = append(this.queue, c)
-	
-	<-c
-}
 
-func (this *Interpreter) Ready() {
-	this.ready = true
-	for _, c := range this.queue {
-		c <- true
-	}
-	this.queue = make([]chan bool, 0)
+	this.mutex.Lock()
+
+	_, goFile, _, _ := runtime.Caller(0)
+	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb")
+	waitForStarting := make(chan bool)
+	this.cmd.Stdout = &StdoutCapturer{waitForStarting}
+	go func() {
+		err := this.cmd.Run()
+		if err != nil {
+			panic(err)
+		}
+	}()
+	<-waitForStarting
+
+	this.started = true
+	this.mutex.Unlock()
 }
 
 type StdoutCapturer struct {
-	interpreter *Interpreter
+	waitForStarting chan bool
 }
 
 func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	if strings.Contains(string(p), "<<ready") {
-		this.interpreter.Ready()
+		this.waitForStarting <- true
 	}
-	n, err = os.Stdout.Write(p)
 	return
 }
 
