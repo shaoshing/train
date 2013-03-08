@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"strconv"
+	"os"
 	"syscall"
 	"sync"
 )
@@ -47,24 +48,6 @@ func Compile(filePath string) (result string, err error) {
 	return
 }
 
-func NewInterpreter() {
-	var i Interpreter
-	_, goFile, _, _ := runtime.Caller(0)
-	i.socketName = "/tmp/train.interpreter.socket"
-	i.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb")
-	i.cmd.Stdout = &StdoutCapturer{&i}
-	
-	go func() {
-		err := i.cmd.Run()
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	// return &i
-	interpreter = &i
-}
-
 func CloseInterpreter() {
 	_, goFile, _, _ := runtime.Caller(0)
 	pidFile := path.Dir(goFile) + "/interpreter.pid"
@@ -92,8 +75,6 @@ func CloseInterpreter() {
 	if err != nil {
 		panic(err)
 	}
-	
-	interpreter = nil
 }
 
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {

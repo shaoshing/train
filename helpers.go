@@ -47,18 +47,15 @@ func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 
 func getUnbundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
 	filePath := ResolvePath(assetUrl)
+	fileExt := path.Ext(filePath)
 	var paths []string
 
-	if HasPublicAssets() {
-		paths = append(paths, filePath)
-	} else {
-		fileExt := path.Ext(filePath)
-		if fileExt == ".js" || fileExt == ".css" {
-			var err error
-			paths, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
-			if err != nil {
-				panic(err)
-			}
+	if fileExt == ".js" || fileExt == ".css" {
+		var err error
+		paths, err = ReadAssetsFunc(filePath, assetUrl, func(filePath string, content string) {})
+		if err != nil {
+			panic(err)
+		}
 	} else {
 		paths = append(paths, filePath)
 	}

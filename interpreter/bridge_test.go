@@ -5,16 +5,11 @@ import (
 	"testing"
 )
 
-var closingCount int
+var closingCount = 2
 func closeTestInterpreter() {
 	if closingCount == 0 {
 		CloseInterpreter()
 	}
-}
-
-func init() {
-	closingCount = 2
-	NewInterpreter()
 }
 
 func TestSass(t *testing.T) {

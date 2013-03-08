@@ -3,6 +3,7 @@ package train
 import (
 	"fmt"
 	"net/http"
+	"github.com/shaoshing/train/interpreter"
 )
 
 func Run() {
@@ -24,5 +25,5 @@ func Run() {
 }
 
 func Stop() {
-	stopConnectInterpreter()
+	interpreter.CloseInterpreter()
 }
