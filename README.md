@@ -90,7 +90,9 @@ body{
 
 ## Usages
 
-### Http Handler
+By now, `train` only support http.DefaultServeMux, custom ServeMux will be soon be support in the next version.
+
+### Run
 
 ```go
   package main
@@ -102,9 +104,11 @@ body{
   )
 
   func main() {
-    http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
-    fmt.Println("Listening to localhost:8000")
-    http.ListenAndServe(":8000", nil)
+      train.Run()
+      defer Train.Stop()
+      
+      fmt.Println("Listening to localhost:8000")
+      http.ListenAndServe(":8000", nil)
   }
 ```
 
@@ -162,8 +166,8 @@ The template helpers will also stop expanding files if it found the public asset
 Will become:
 
 ```html
-<script src="/assets/javascripts/app.js?12345"></script>
-<link rel="stylesheet" href="/assets/stylesheets/app.css?12345">
+<script src="/assets/javascripts/app-f72c58d3009ff4412f20393e0447674c.js"></script>
+<link rel="stylesheet" href="/assets/stylesheets/app-df05cdccb878a7efa14a98ea2e34e894.css">
 ```
 
 
