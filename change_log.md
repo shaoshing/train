@@ -1,3 +1,9 @@
+# 2013-3-8
+
+* interpreter memory leaking problem solved
+* fingerprinting on production mode
+* some internal refactoring
+
 # 2013-3-4
 
 * HasPublicAssets is renamed into IsInProduction for codes readablity.
