@@ -38,6 +38,14 @@ func StylesheetTag(name string) template.HTML {
 }
 
 func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
+	if Config.BundleAssets {
+		return getBundledAssets(assetUrl)
+	}
+	
+	return getUnbundledAssets(assetUrl)
+}
+
+func getUnbundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
 	filePath := ResolvePath(assetUrl)
 	fileExt := path.Ext(filePath)
 	var paths []string
@@ -49,9 +57,6 @@ func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 			panic(err)
 		}
 
-		if Config.BundleAssets {
-			paths = paths[len(paths)-1:]
-		}
 	} else {
 		paths = append(paths, filePath)
 	}
@@ -64,15 +69,19 @@ func resolveAssetUrls(assetUrl string) (urls []string, mtimes []time.Time) {
 	return
 }
 
+func getBundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
+	urls = []string{manifestInfo[Config.AssetsUrl + assetUrl]}
+	mtimes = nil
+	
+	return
+}
+
 func asserUrlFromPath(assetPath string) (url string) {
 	url = path.Clean(strings.Replace(assetPath, Config.AssetsPath, Config.AssetsUrl, 1))
 	url = strings.Replace(url, ".sass", ".css", 1)
 	url = strings.Replace(url, ".scss", ".css", 1)
 	url = strings.Replace(url, ".coffee", ".js", 1)
-    
-    if Config.BundleAssets {
-        url = manifestInfo[url]
-    }
+	
 	return
 }
 
@@ -83,7 +92,10 @@ func generateRawHtml(urls []string, param string, mtimes []time.Time, tag string
 	}
 
 	for i, url := range urls {
-		murl := url + "?" + strconv.FormatInt(mtimes[i].Unix(), 10)
+		murl := url
+		if mtimes != nil {
+			murl += "?" + strconv.FormatInt(mtimes[i].Unix(), 10)
+		}
 		htmls = append(htmls, fmt.Sprintf(tag, murl, param))
 	}
 	return template.HTML(strings.Join(htmls, "\n"))
