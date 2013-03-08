@@ -200,7 +200,7 @@ func fingerPrintAssets() {
 
 		fpAsset := fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
 
-		err = os.Rename(asset, fpAsset)
+		err = ioutil.WriteFile(fpAsset, assetContent, 0644)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			return
