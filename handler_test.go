@@ -16,11 +16,12 @@ var httpServer *httptest.Server
 
 func initServer() {
 	http.DefaultServeMux = http.NewServeMux()
-	Run()
+	Run(nil)
 	httpServer = httptest.NewServer(nil)
 }
 
 var exitTestCount = 2
+
 func cleanupHandlerTest() {
 	if exitTestCount > 0 {
 		exitTestCount--
@@ -33,7 +34,7 @@ func cleanupHandlerTest() {
 func TestDeliverUnbundledAssets(t *testing.T) {
 	initServer()
 	defer cleanupHandlerTest()
-	
+
 	assert.Test = t
 	Config.BundleAssets = true
 
@@ -99,7 +100,6 @@ func TestDeliverBundledAssets(t *testing.T) {
 		Config.BundleAssets = false
 	}()
 
-	
 	assertAsset("/assets/app.js", "app.js\n", "application/javascript")
 	assert404("/assets/normal.js")
 }
