@@ -22,6 +22,8 @@ func TestCommand(t *testing.T) {
 		t.FailNow()
 	}
 
+	removeAssets()
+
 	copyAssets()
 	defer train.Stop()
 

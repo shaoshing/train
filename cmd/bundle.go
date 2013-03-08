@@ -17,6 +17,8 @@ import (
 	"strings"
 )
 
+const CompressorFileName = "yuicompressor-2.4.7.jar"
+
 func main() {
 	if !prepareEnv() {
 		return
@@ -47,18 +49,14 @@ func prepareEnv() bool {
 
 func removeAssets() {
 	fmt.Println("-> clean bundled assets")
-
-	err := exec.Command("rm", "-rf", "public"+train.Config.AssetsUrl).Run()
-	if err != nil {
+	if _, err := bash("rm -rf public" + train.Config.AssetsUrl); err != nil {
 		panic(err)
 	}
 }
 
 func copyAssets() {
 	fmt.Println("-> copy assets from", train.Config.AssetsPath)
-
-	err := exec.Command("cp", "-rf", train.Config.AssetsPath, "public"+train.Config.AssetsUrl).Run()
-	if err != nil {
+	if _, err := bash("cp -rf " + train.Config.AssetsPath + " public" + train.Config.AssetsUrl); err != nil {
 		panic(err)
 	}
 }
@@ -137,19 +135,14 @@ func compress(files []string, option string) {
 		return
 	}
 
-	_, filename, _, _ := runtime.Caller(1)
-	pkgPath := path.Dir(filename)
-	yuicompressor := pkgPath + "/yuicompressor-2.4.7.jar"
-	cmd := exec.Command("sh", "-c", "java -jar "+yuicompressor+" -o '"+option+"' "+strings.Join(files, " "))
-	var out bytes.Buffer
-	cmd.Stderr = &out
-	cmd.Stdout = &out
-
 	fmt.Println(files)
 
-	err = cmd.Run()
-	if err != nil {
-		fmt.Println("YUI Compressor error:", out.String())
+	_, filename, _, _ := runtime.Caller(1)
+	pkgPath := path.Dir(filename)
+	yuicompressor := pkgPath + "/" + CompressorFileName
+	var out string
+	if out, err = bash("java -jar " + yuicompressor + " -o '" + option + "' " + strings.Join(files, " ")); err != nil {
+		fmt.Println("YUI Compressor error:", out)
 		panic(err)
 	}
 }
@@ -219,5 +212,15 @@ func GetHashedAsset(assetPath string) (hashedPath string, content []byte, err er
 	filename = filename[0:strings.LastIndex(filename, ext)]
 
 	hashedPath = fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
+	return
+}
+
+func bash(bash string) (out string, err error) {
+	cmd := exec.Command("sh", "-c", bash)
+	var buf bytes.Buffer
+	cmd.Stderr = &buf
+	cmd.Stdout = &buf
+	err = cmd.Run()
+	out = buf.String()
 	return
 }
