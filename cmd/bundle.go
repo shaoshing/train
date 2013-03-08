@@ -7,7 +7,6 @@ import (
 	"github.com/shaoshing/train"
 	"io"
 	"io/ioutil"
-	"launchpad.net/goyaml"
 	"os"
 	"os/exec"
 	"path"
@@ -209,13 +208,7 @@ func fingerPrintAssets() {
 		fpAssets[asset[6:]] = fpAsset[6:]
 	}
 
-	d, err := goyaml.Marshal(&fpAssets)
-	if err != nil {
-		panic(err)
-	}
-
-	err = ioutil.WriteFile("public/assets/manifest.yml", d, 0644)
-	if err != nil {
+	if err := train.WriteToManifest(fpAssets); err != nil {
 		panic(err)
 	}
 }
