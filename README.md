@@ -90,11 +90,7 @@ body{
 
 ## Usages
 
-By now, `train` only support http.DefaultServeMux, custom ServeMux will be soon be support in the next version.
-
-By default, train will register '/assets/' http url pattern, if you want to use another url prefix, please reconfig it before calling `Run`.
-
-### Run
+### Configure Http Handler
 
 ```go
   package main
@@ -106,9 +102,10 @@ By default, train will register '/assets/' http url pattern, if you want to use 
   )
 
   func main() {
-      train.Run()
+      // By passing the nil param, train will add http handler to the http.DefaultServeMux to handle all asset requests starting with "/assets/". However, if you are using custom ServeMux, you can simply pass your ServeMux into it.
+      train.ConfigureHttpHandler(nil)
       defer Train.Stop()
-      
+
       fmt.Println("Listening to localhost:8000")
       http.ListenAndServe(":8000", nil)
   }
@@ -129,7 +126,7 @@ func main() {
     train.Config.AssetsUrl = "/custom/path"
     train.Run()
     defer Train.Stop()
-      
+
     fmt.Println("Listening to localhost:8000")
     http.ListenAndServe(":8000", nil)
 }
@@ -166,6 +163,8 @@ func main() {
 Install the command line tool to bundle and compress assets automatically:
 
 ```shell
+# Install the train command. Run "train help" to see help info.
+# Be sure to add $GOPATH/bin to you $PATH env. Otherwise you will have to run $GOPATH/bin/train
 go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
 
 train
@@ -177,7 +176,7 @@ train
 ls public/assets
 ```
 
-The train tool will bundle your assets into the public/assets folder, with all files expaneded and compressed (by YUI compressor).
+The train command will bundle your assets into the public/assets folder, with all files expaneded and compressed (by YUI compressor).
 You can then use any web servers (nginx, apache, or the Go's file server) to serve these static files.
 The template helpers will also stop expanding files if it found the public assets folder. That is, the following code:
 
