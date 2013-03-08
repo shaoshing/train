@@ -7,7 +7,7 @@ import (
 )
 
 // setting serveMux to nil will use http.DefaultServeMux instead.
-func Run(serveMux *http.ServeMux) {
+func ConfigureHttpHandler(serveMux *http.ServeMux) {
 	setupFileServer()
 
 	if serveMux == nil {

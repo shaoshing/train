@@ -11,7 +11,7 @@ func main() {
     // train.Config.BundleAssets = true
 
     // http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
-    train.Run()
+    train.ConfigureHttpHandler(nil)
 	defer train.Stop()
 	
 	http.HandleFunc("/", example)

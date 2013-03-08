@@ -16,7 +16,7 @@ var httpServer *httptest.Server
 
 func initServer() {
 	http.DefaultServeMux = http.NewServeMux()
-	Run(nil)
+	ConfigureHttpHandler(nil)
 	httpServer = httptest.NewServer(nil)
 }
 
