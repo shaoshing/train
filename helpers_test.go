@@ -36,7 +36,7 @@ func TestHelpers(t *testing.T) {
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/app.css?`+stamp+`">`, string(StylesheetTag("app")))
 
 	Config.BundleAssets = true
-	manifestInfo = FpAssets{
+	ManifestInfo = FpAssets{
 		"/assets/javascripts/require.js":  "/assets/javascripts/require-fingerprintinghash.js",
 		"/assets/stylesheets/require.css": "/assets/stylesheets/require-fingerprintinghash.css",
 	}
@@ -45,7 +45,7 @@ func TestHelpers(t *testing.T) {
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/require-fingerprintinghash.css">`, string(StylesheetTag("require")))
 
 	Config.BundleAssets = false
-	manifestInfo = FpAssets{}
+	ManifestInfo = FpAssets{}
 }
 
 func updateAssetTimes(t time.Time) {

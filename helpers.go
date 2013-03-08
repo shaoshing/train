@@ -69,7 +69,7 @@ func getUnbundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
 }
 
 func getBundledAssets(assetUrl string) (urls []string, mtimes []time.Time) {
-	urls = []string{manifestInfo[Config.AssetsUrl+assetUrl]}
+	urls = []string{ManifestInfo[Config.AssetsUrl+assetUrl]}
 	mtimes = nil
 
 	return

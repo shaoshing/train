@@ -7,7 +7,7 @@ import (
 
 type FpAssets map[string]string
 
-var manifestInfo FpAssets
+var ManifestInfo FpAssets
 
 const (
 	ManifestPath      = "public/assets/manifest.txt"
@@ -15,7 +15,7 @@ const (
 )
 
 func LoadManifestInfo() error {
-	manifestInfo = make(FpAssets)
+	ManifestInfo = make(FpAssets)
 
 	content, err := ioutil.ReadFile(ManifestPath)
 	if err != nil {
@@ -27,7 +27,7 @@ func LoadManifestInfo() error {
 		if len(info) != 2 {
 			continue
 		}
-		manifestInfo[info[0]] = info[1]
+		ManifestInfo[info[0]] = info[1]
 	}
 	return nil
 }

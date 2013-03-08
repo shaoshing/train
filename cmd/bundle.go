@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"github.com/shaoshing/train"
 	"io"
@@ -182,22 +183,10 @@ func fingerPrintAssets() {
 
 	fpAssets := train.FpAssets{}
 	for _, asset := range assets {
-		assetContent, err := ioutil.ReadFile(asset)
+		fpAsset, assetContent, err := GetHashedAsset(asset)
 		if err != nil {
-			fmt.Printf("Fingerprint Error: %s\n", err)
 			return
 		}
-
-		h := md5.New()
-		io.WriteString(h, string(assetContent))
-		fpStr := string(h.Sum(nil))
-
-		dir, file := filepath.Split(asset)
-		ext := filepath.Ext(file)
-		filename := filepath.Base(file)
-		filename = filename[0:strings.LastIndex(filename, ext)]
-
-		fpAsset := fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
 
 		err = ioutil.WriteFile(fpAsset, assetContent, 0644)
 		if err != nil {
@@ -211,4 +200,24 @@ func fingerPrintAssets() {
 	if err := train.WriteToManifest(fpAssets); err != nil {
 		panic(err)
 	}
+}
+
+func GetHashedAsset(assetPath string) (hashedPath string, content []byte, err error) {
+	content, err = ioutil.ReadFile(assetPath)
+	if err != nil {
+		err = errors.New(fmt.Sprintf("Fingerprint Error: %s\n", err))
+		return
+	}
+
+	h := md5.New()
+	io.WriteString(h, string(content))
+	fpStr := string(h.Sum(nil))
+
+	dir, file := filepath.Split(assetPath)
+	ext := filepath.Ext(file)
+	filename := filepath.Base(file)
+	filename = filename[0:strings.LastIndex(filename, ext)]
+
+	hashedPath = fmt.Sprintf("%s%s-%x%s", dir, filename, fpStr, ext)
+	return
 }
