@@ -17,11 +17,11 @@ func assertEqual(path, content string) {
 
 func TestCommand(t *testing.T) {
 	assert.Test = t
-	
+
 	if !prepareEnv() {
 		t.FailNow()
 	}
-	
+
 	copyAssets()
 	defer train.Stop()
 
@@ -88,6 +88,10 @@ Me
 `)
 	assertEqual("public/assets/stylesheets/font.css", `h1{color:green}`)
 	assertEqual("public/assets/javascripts/app.js", `(function(){var b;b=12}).call(this);`)
-	
+
+	fingerPrintAssets()
+	assertEqual("public/assets/stylesheets/font.css", `h1{color:green}`) // should keep original assets
+	assertEqual("public/assets/stylesheets/font-5007943f2120761882598f7a4aea7fcd.css", `h1{color:green}`)
+
 	removeAssets()
 }
