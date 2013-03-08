@@ -8,13 +8,11 @@ import (
 )
 
 func main() {
-	// train.Config.BundleAssets = true
-
-	// http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
 	train.ConfigureHttpHandler(nil)
 	defer train.Stop()
 
 	http.HandleFunc("/", example)
+	http.HandleFunc("/toggle_bundle_assets", toggle_bundle_assets)
 
 	fmt.Println("Listening to localhost:8000")
 	err := http.ListenAndServe(":8000", nil)
@@ -32,8 +30,13 @@ func example(w http.ResponseWriter, r *http.Request) {
 	tpl.Funcs(train.HelperFuncs)
 	tpl.Parse(`
 {{define "example"}}
-	Examples:<br/>
-
+	<br/>
+	bundle assets: {{.BundleAssets}} (<a href="/toggle_bundle_assets">toggle</a>)
+	<br/>
+	<br/>
+	Examples:
+	<br/>
+	<br/>
 	{{javascript_tag "normal"}}
 	{{stylesheet_tag "normal"}}
 
@@ -51,5 +54,12 @@ func example(w http.ResponseWriter, r *http.Request) {
 {{end}}
 `)
 
-	tpl.ExecuteTemplate(w, "example", nil)
+	tpl.ExecuteTemplate(w, "example", struct {
+		BundleAssets bool
+	}{train.Config.BundleAssets})
+}
+
+func toggle_bundle_assets(w http.ResponseWriter, r *http.Request) {
+	train.Config.BundleAssets = !train.Config.BundleAssets
+	http.Redirect(w, r, "/", 302)
 }
