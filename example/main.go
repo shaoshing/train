@@ -12,6 +12,8 @@ func main() {
 
     // http.Handle(train.Config.AssetsUrl, http.HandlerFunc(train.Handler))
     train.Run()
+	defer train.Stop()
+	
 	http.HandleFunc("/", example)
     
 	fmt.Println("Listening to localhost:8000")
