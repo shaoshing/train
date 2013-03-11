@@ -28,7 +28,7 @@ type sassConfig struct {
 	LineNumbers bool
 }
 
-var Config config = config{
+var Config = config{
 	AssetsPath: "assets",
 	AssetsUrl:  "/assets/",
 	Mode:       DevelopmentMode,
