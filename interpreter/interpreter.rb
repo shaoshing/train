@@ -1,14 +1,9 @@
 require "socket"
 
-PID = ARGV[1]
-File.open(PID, 'w') do |file|
-  file << Process.pid
-end
-
 class Interpreter
   SOCKET_NAME = ARGV[0]
 
-  def self.run
+  def self.serve
     server = listen
 
     loop {
@@ -80,4 +75,4 @@ class Interpreter
   end
 end
 
-Interpreter.run
+Interpreter.serve

@@ -5,14 +5,12 @@ import (
 	"errors"
 	"io/ioutil"
 	"net"
-	"os"
 	"os/exec"
 	"path"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -25,13 +23,11 @@ type Interpreter struct {
 var (
 	interpreter           Interpreter
 	interpreterSocketName string
-	interpreterPid        string
 )
 
 func init() {
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 	interpreterSocketName = "/tmp/train.interpreter." + timestamp + ".socket"
-	interpreterPid = "/tmp/train.interpreter." + timestamp + ".pid"
 }
 
 var Config struct {
@@ -58,29 +54,7 @@ func Compile(filePath string) (result string, err error) {
 }
 
 func CloseInterpreter() {
-	if _, err := os.Stat(interpreterPid); err != nil && os.IsNotExist(err) {
-		return
-	}
-
-	dat, err := ioutil.ReadFile(interpreterPid)
-	if err != nil {
-		panic(err)
-	}
-
-	err = exec.Command("rm", interpreterPid).Run()
-	if err != nil {
-		panic(err)
-	}
-
-	pid, err := strconv.Atoi(string(dat))
-	if err != nil {
-		panic(err)
-	}
-
-	err = syscall.Kill(pid, syscall.Signal(9))
-	if err != nil {
-		panic(err)
-	}
+	interpreter.Close()
 }
 
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
@@ -117,7 +91,7 @@ func (this *Interpreter) StartRubyInterpreter() {
 	this.mutex.Lock()
 
 	_, goFile, _, _ := runtime.Caller(0)
-	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", interpreterSocketName, interpreterPid)
+	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", interpreterSocketName)
 	waitForStarting := make(chan bool)
 	this.cmd.Stdout = &StdoutCapturer{waitForStarting}
 	go func() {
@@ -130,6 +104,12 @@ func (this *Interpreter) StartRubyInterpreter() {
 
 	this.started = true
 	this.mutex.Unlock()
+}
+
+func (this *Interpreter) Close() {
+	if this.cmd != nil {
+		this.cmd.Process.Kill()
+	}
 }
 
 type StdoutCapturer struct {
