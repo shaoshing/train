@@ -8,6 +8,8 @@ import (
 type config struct {
 	AssetsPath string
 	AssetsUrl  string
+	// Show verbose logs. For example, SASS warnings.
+	Verbose bool
 	// Whether to serve bundled assets in development mode. This option is ignored
 	// when in production mode, that is, the ./public/assets folder exists.
 	BundleAssets bool

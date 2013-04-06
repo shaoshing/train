@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+func init() {
+	Config.Verbose = true
+}
+
 func TestReadingNormalAssets(t *testing.T) {
 	assert.Test = t
 	var content string

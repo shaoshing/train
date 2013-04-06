@@ -7,6 +7,10 @@ import (
 	"testing"
 )
 
+func init() {
+	train.Config.Verbose = true
+}
+
 func assertEqual(path, content string) {
 	c, err := ioutil.ReadFile(path)
 	if err != nil {

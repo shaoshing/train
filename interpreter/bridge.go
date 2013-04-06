@@ -26,7 +26,8 @@ var (
 )
 
 var Config struct {
-	SASS struct {
+	Verbose bool
+	SASS    struct {
 		DebugInfo   bool
 		LineNumbers bool
 	}
@@ -87,8 +88,9 @@ func (this *Interpreter) startRubyInterpreter() {
 	currentPid := strconv.FormatInt(int64(os.Getpid()), 10)
 	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", this.SocketName, currentPid)
 	waitForStarting := make(chan bool)
-	this.cmd.Stdout = &StdoutCapturer{waitForStarting}
-	this.cmd.Stderr = os.Stderr
+	writer := &StdoutCapturer{waitForStarting}
+	this.cmd.Stdout = writer
+	this.cmd.Stderr = writer
 	err := this.cmd.Start()
 	if err != nil {
 		panic(err)
@@ -108,7 +110,10 @@ func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	if strings.Contains(string(p), "<<ready") {
 		this.waitForStarting <- true
 	}
-	n, err = os.Stdout.Write(p)
+
+	if Config.Verbose {
+		n, err = os.Stdout.Write(p)
+	}
 	return
 }
 
