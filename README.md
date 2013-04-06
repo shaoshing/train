@@ -147,7 +147,6 @@ By default, train will register '/assets/' http url pattern, if you want to use 
       // By passing the nil param, train will add http handler to the http.DefaultServeMux to handle all asset requests starting with "/assets/". However, if you are using custom ServeMux, you can simply pass your ServeMux into it.
       train.ConfigureHttpHandler(nil)
       train.ConfigureHttpHandler(nil)
-      defer Train.Stop()
 
       fmt.Println("Listening to localhost:8000")
       http.ListenAndServe(":8000", nil)
@@ -193,7 +192,6 @@ import (
 func main() {
     train.Config.AssetsUrl = "/custom/path"
     train.ConfigHttpHandler(nil)
-    defer Train.Stop()
 
     fmt.Println("Listening to localhost:8000")
     http.ListenAndServe(":8000", nil)
@@ -259,11 +257,6 @@ Will become:
 
 	<script src="/assets/javascripts/app-f72c58d3009ff4412f20393e0447674c.js"></script>
 	<link rel="stylesheet" href="/assets/stylesheets/app-df05cdccb878a7efa14a98ea2e34e894.css">
-
-### Notes
-
-* `Train.Stop` must be executed before you stop the running of your app. Because it will ask the ruby Sass and Coffee parsing server to shutdown.
-* Unlike Pipeline, `train` do not ask you to use `asset_url` in your assets file and then generate the reachable asset link for you, so you have to use absolute path when you are writing css or even js.
 
 ## License
 
