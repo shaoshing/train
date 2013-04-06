@@ -7,3 +7,5 @@ install:
   - go get github.com/shaoshing/train/interpreter
   - gem in sass
   - gem in coffee-script
+script:
+  ./test_all.sh
