@@ -23,6 +23,8 @@ func main() {
 		bundle()
 	case "upgrade":
 		upgrade()
+	case "diagnose":
+		diagnose()
 	case "version":
 		fmt.Println("Train version", train.VERSION)
 	case "help":
@@ -49,6 +51,7 @@ Commands:
 
    bundle: bundle assets into ./public/assets [run by default]
   upgrade: install the latest qortex command.
+ diagnose: trouble shooting.
   version: %s
 `, train.VERSION)
 }
