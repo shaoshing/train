@@ -33,9 +33,9 @@ func TestHelpers(t *testing.T) {
 	assert.Equal(`<script src="/assets/javascripts/app.js?`+stamp+`"></script>`, string(JavascriptTag("app")))
 	assert.Equal(`<link type="text/css" rel="stylesheet" href="/assets/stylesheets/app.css?`+stamp+`">`, string(StylesheetTag("app")))
 
-	Config.Mode = ProductionMode
+	Config.Mode = PRODUCTION_MODE
 	defer func() {
-		Config.Mode = DevelopmentMode
+		Config.Mode = DEVELOPMENT_MODE
 	}()
 	ManifestInfo = FpAssets{
 		"/assets/javascripts/require.js":  "/assets/javascripts/require-fingerprintinghash.js",

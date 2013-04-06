@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/shaoshing/train"
 	"os/exec"
 )
 
@@ -22,15 +23,12 @@ func main() {
 		bundle()
 	case "upgrade":
 		upgrade()
+	case "version":
+		fmt.Println("Train version", train.VERSION)
 	case "help":
-		fmt.Printf(`Available commands:
-
-   bundle: bundle assets into ./public/assets [default]
-  upgrade: install the latest qortex command.
-     help: show this help info.
-`)
+		showHelp()
 	default:
-		panic(fmt.Sprintf("Unknown command %s", command))
+		showHelp()
 	}
 }
 
@@ -42,4 +40,15 @@ func bash(bash string) (out string, err error) {
 	err = cmd.Run()
 	out = buf.String()
 	return
+}
+
+func showHelp() {
+	fmt.Printf(`usage: train [command]
+
+Commands:
+
+   bundle: bundle assets into ./public/assets [run by default]
+  upgrade: install the latest qortex command.
+  version: %s
+`, train.VERSION)
 }

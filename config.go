@@ -13,16 +13,17 @@ type config struct {
 	// Whether to serve bundled assets in development mode. This option is ignored
 	// when in production mode, that is, the ./public/assets folder exists.
 	BundleAssets bool
-	// When set to DevelopmentMode, assets are read from ./assets
-	// When set to ProductionMode, assets are read from ./public/assets
-	// It is set to ProductionMode automatically if the ./public/assets exist.
+	// When set to DEVELOPMENT_MODE, assets are read from ./assets
+	// When set to PRODUCTION_MODE, assets are read from ./public/assets
+	// It is set to PRODUCTION_MODE automatically if the ./public/assets exist.
 	Mode string
 	SASS sassConfig
 }
 
 const (
-	DevelopmentMode = "development"
-	ProductionMode  = "production"
+	DEVELOPMENT_MODE = "development"
+	PRODUCTION_MODE  = "production"
+	VERSION          = "0.1"
 )
 
 type sassConfig struct {
@@ -33,12 +34,12 @@ type sassConfig struct {
 var Config = config{
 	AssetsPath: "assets",
 	AssetsUrl:  "/assets/",
-	Mode:       DevelopmentMode,
+	Mode:       DEVELOPMENT_MODE,
 }
 
 func init() {
 	if HasPublicAssets() {
-		Config.Mode = ProductionMode
+		Config.Mode = PRODUCTION_MODE
 	}
 
 	if IsInProduction() {
@@ -49,7 +50,7 @@ func init() {
 }
 
 func IsInProduction() bool {
-	return Config.Mode == ProductionMode
+	return Config.Mode == PRODUCTION_MODE
 }
 
 func HasPublicAssets() bool {
