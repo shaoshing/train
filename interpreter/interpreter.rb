@@ -2,11 +2,11 @@ require "socket"
 
 class Interpreter
   SOCKET_NAME = ARGV[0]
+  MASTER_PID = ARGV[1].to_i
 
   def self.serve
     server = listen
-
-    loop {
+    loop do
       client = server.accept
       format, option, content = read_all(client)
 
@@ -18,14 +18,36 @@ class Interpreter
         client.write "error<<#{e}"
       end
       client.close
-    }
+    end
+  end
+
+  # Shut down the interpreter when master process do not exist.
+  def self.prepare_for_automatic_termination
+    interpreter_pid = Process.pid
+    fork do
+      loop do
+        sleep 2
+        begin
+          Process.getpgid(MASTER_PID)
+        rescue #=> when master process can not be found
+          Interpreter.clean_up
+          Process.kill 1, interpreter_pid
+          exit
+        end
+      end
+    end
+  end
+
+  def self.clean_up
+    `rm -f #{SOCKET_NAME}`
   end
 
   private
 
   def self.listen
     begin
-      `rm -f #{SOCKET_NAME}`
+      clean_up
+
       server = UNIXServer.new(SOCKET_NAME)
       puts "<<ready"
       `touch #{SOCKET_NAME}`
@@ -75,4 +97,6 @@ class Interpreter
   end
 end
 
+trap("INT"){} #=> make silent the "Interrupted" error
+Interpreter.prepare_for_automatic_termination
 Interpreter.serve

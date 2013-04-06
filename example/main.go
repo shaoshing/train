@@ -9,7 +9,6 @@ import (
 
 func main() {
 	train.ConfigureHttpHandler(nil)
-	defer train.Stop()
 
 	http.HandleFunc("/", example)
 	http.HandleFunc("/toggle_bundle_assets", toggle_bundle_assets)

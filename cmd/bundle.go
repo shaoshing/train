@@ -32,7 +32,6 @@ func bundle() {
 	bundleAssets()
 	compressAssets()
 	fingerPrintAssets()
-	train.Stop()
 }
 
 func prepareEnv() bool {

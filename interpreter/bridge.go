@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net"
+	"os"
 	"os/exec"
 	"path"
 	"runtime"
@@ -15,20 +16,14 @@ import (
 )
 
 type Interpreter struct {
-	cmd     *exec.Cmd
-	started bool
-	mutex   sync.Mutex
+	cmd        *exec.Cmd
+	SocketName string
+	sync.Mutex
 }
 
 var (
-	interpreter           Interpreter
-	interpreterSocketName string
+	interpreter Interpreter
 )
-
-func init() {
-	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-	interpreterSocketName = "/tmp/train.interpreter." + timestamp + ".socket"
-}
 
 var Config struct {
 	SASS struct {
@@ -53,14 +48,10 @@ func Compile(filePath string) (result string, err error) {
 	return
 }
 
-func CloseInterpreter() {
-	interpreter.Close()
-}
-
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
-	this.StartRubyInterpreter()
+	this.startRubyInterpreter()
 
-	conn, err := net.Dial("unix", interpreterSocketName)
+	conn, err := net.Dial("unix", this.SocketName)
 	if err != nil {
 		panic(err)
 	}
@@ -83,33 +74,30 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 	return
 }
 
-func (this *Interpreter) StartRubyInterpreter() {
-	if this.started {
+func (this *Interpreter) startRubyInterpreter() {
+	this.Lock()
+	defer this.Unlock()
+
+	if this.IsStarted() {
 		return
 	}
 
-	this.mutex.Lock()
-
 	_, goFile, _, _ := runtime.Caller(0)
-	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", interpreterSocketName)
+	this.SocketName = generateUniqueSocketName()
+	currentPid := strconv.FormatInt(int64(os.Getpid()), 10)
+	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", this.SocketName, currentPid)
 	waitForStarting := make(chan bool)
 	this.cmd.Stdout = &StdoutCapturer{waitForStarting}
-	go func() {
-		err := this.cmd.Run()
-		if err != nil {
-			panic(err)
-		}
-	}()
+	this.cmd.Stderr = os.Stderr
+	err := this.cmd.Start()
+	if err != nil {
+		panic(err)
+	}
 	<-waitForStarting
-
-	this.started = true
-	this.mutex.Unlock()
 }
 
-func (this *Interpreter) Close() {
-	if this.cmd != nil {
-		this.cmd.Process.Kill()
-	}
+func (this *Interpreter) IsStarted() bool {
+	return this.cmd != nil
 }
 
 type StdoutCapturer struct {
@@ -120,6 +108,7 @@ func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
 	if strings.Contains(string(p), "<<ready") {
 		this.waitForStarting <- true
 	}
+	n, err = os.Stdout.Write(p)
 	return
 }
 
@@ -131,4 +120,9 @@ func getOption() string {
 		return "debug_info"
 	}
 	return ""
+}
+
+func generateUniqueSocketName() string {
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	return "/tmp/train.interpreter." + timestamp + ".socket"
 }

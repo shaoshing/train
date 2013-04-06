@@ -1,7 +1,6 @@
 package train
 
 import (
-	// "launchpad.net/gocheck"
 	"github.com/shaoshing/gotest"
 	"io/ioutil"
 	"net/http"
@@ -20,20 +19,8 @@ func initServer() {
 	httpServer = httptest.NewServer(nil)
 }
 
-var exitTestCount = 2
-
-func cleanupHandlerTest() {
-	if exitTestCount > 0 {
-		exitTestCount--
-	} else {
-		httpServer.Close()
-		Stop()
-	}
-}
-
 func TestDeliverUnbundledAssets(t *testing.T) {
 	initServer()
-	defer cleanupHandlerTest()
 
 	assert.Test = t
 	Config.BundleAssets = true
@@ -91,7 +78,6 @@ h3 {
 func TestDeliverBundledAssets(t *testing.T) {
 	Config.Mode = ProductionMode
 	initServer()
-	defer cleanupHandlerTest()
 
 	assert.Test = t
 	exec.Command("cp", "-rf", "assets/public", "./").Run()

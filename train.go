@@ -2,7 +2,6 @@ package train
 
 import (
 	"fmt"
-	"github.com/shaoshing/train/interpreter"
 	"net/http"
 )
 
@@ -26,8 +25,4 @@ func ConfigureHttpHandler(serveMux *http.ServeMux) {
 	serveMux.Handle(Config.AssetsUrl, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		server(w, r)
 	}))
-}
-
-func Stop() {
-	interpreter.CloseInterpreter()
 }

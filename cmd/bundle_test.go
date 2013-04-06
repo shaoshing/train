@@ -18,14 +18,11 @@ func assertEqual(path, content string) {
 func TestCommand(t *testing.T) {
 	assert.Test = t
 
-	if !prepareEnv() {
-		t.FailNow()
-	}
+	assert.TrueM(prepareEnv(), "Unable to prepare env for cmd tests")
 
 	removeAssets()
 
 	copyAssets()
-	defer train.Stop()
 
 	assertEqual("public/assets/javascripts/normal.js", "normal.js\n")
 	assertEqual("public/assets/javascripts/require.js", `//= require javascripts/normal

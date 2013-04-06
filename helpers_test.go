@@ -10,8 +10,6 @@ import (
 )
 
 func TestHelpers(t *testing.T) {
-	defer Stop()
-
 	assert.Test = t
 	Config.BundleAssets = false
 	now := time.Now()
