@@ -25,6 +25,7 @@ class Interpreter
   def self.prepare_for_automatic_termination
     interpreter_pid = Process.pid
     fork do
+      $0 = "ruby [train] master process monitor (PID #{MASTER_PID})" # Set Process Name
       loop do
         sleep 2
         begin
