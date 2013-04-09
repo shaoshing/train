@@ -50,6 +50,9 @@ func Compile(filePath string) (result string, err error) {
 }
 
 func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
+	this.Lock()
+	defer this.Unlock()
+
 	this.startRubyInterpreter()
 
 	conn, err := net.Dial("unix", this.SocketName)
@@ -76,9 +79,6 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 }
 
 func (this *Interpreter) startRubyInterpreter() {
-	this.Lock()
-	defer this.Unlock()
-
 	if this.IsStarted() {
 		return
 	}
@@ -106,15 +106,15 @@ type StdoutCapturer struct {
 	waitForStarting chan bool
 }
 
-func (this *StdoutCapturer) Write(p []byte) (n int, err error) {
+func (this *StdoutCapturer) Write(p []byte) (int, error) {
 	if strings.Contains(string(p), "<<ready") {
 		this.waitForStarting <- true
 	}
 
 	if Config.Verbose {
-		n, err = os.Stdout.Write(p)
+		return os.Stdout.Write(p)
 	}
-	return
+	return len(p), nil
 }
 
 func getOption() string {

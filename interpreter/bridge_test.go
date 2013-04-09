@@ -3,6 +3,7 @@ package interpreter
 import (
 	"github.com/shaoshing/gotest"
 	"testing"
+	"time"
 )
 
 func init() {
@@ -51,4 +52,34 @@ func TestCoffee(t *testing.T) {
 	css, e = Compile("assets/javascripts/app.err.coffee")
 	assert.True(e != nil)
 	assert.Contain("Could not compile coffee:", e.Error())
+}
+
+func TestConcurrency(t *testing.T) {
+	assert.Test = t
+	concurrency := 10
+	compileChan := make(chan bool)
+	for i := 0; i < concurrency; i++ {
+		go func() {
+			Compile("assets/stylesheets/app.sass")
+			compileChan <- true
+		}()
+	}
+
+	completeChan := make(chan bool)
+	go func() {
+		for i := 0; i < concurrency; i++ {
+			<-compileChan
+		}
+		completeChan <- true
+	}()
+
+	success := true
+	select {
+	case <-completeChan:
+		success = true
+	case <-time.After(10 * time.Second):
+		success = false
+	}
+
+	assert.True(success)
 }
