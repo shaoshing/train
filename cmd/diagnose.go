@@ -38,7 +38,7 @@ func diagnose() bool {
 		fmt.Println("   (install it if you wish to use SASS: gem install sass)")
 		allGood = false
 	} else {
-		_, err = interpreter.Compile(assetsPath + "/stylesheets/app.sass")
+		_, err = interpreter.Compile(assetsPath + "/stylesheets/font.sass")
 		if err != nil {
 			fmt.Println("-- Could not compile SASS:")
 			fmt.Printf("   %s\n", err.Error())
