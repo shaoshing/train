@@ -5,16 +5,25 @@ import (
 	"github.com/shaoshing/train/interpreter"
 	"path"
 	"runtime"
+	"strings"
 )
 
 func diagnose() bool {
 	var err error
 
 	fmt.Println("== Diagnosing")
-	_, err = bash("ruby --version")
+
+	var rubyVersion string
+	rubyVersion, err = bash(`ruby -e "puts RUBY_VERSION"`)
 	if err != nil {
 		fmt.Println("-- SASS and CoffeeScript are disabled because ruby is not installed.")
 		fmt.Println("   (visit http://www.ruby-lang.org/en/downloads/ for installation instructions)")
+		return false
+	}
+
+	if !strings.Contains(rubyVersion, "1.9") {
+		fmt.Printf("-- Train requires Ruby version to be 1.9.x; you have %s", rubyVersion)
+		fmt.Println("   (Please install required Ruby version if you wish to use SASS or CoffeeScript)")
 		return false
 	}
 
