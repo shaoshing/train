@@ -1,262 +1,332 @@
-# Train [![Build Status](https://travis-ci.org/shaoshing/train.png?branch=master)](https://travis-ci.org/shaoshing/train)
+# Train
 
-Asset Management Package for web app in Go language. Inspired by [Rails Asset Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
+Assets Management Package for web app in Go. The main purpose of it is to introduce some good practices already existed in Ruby on Rails' [Assets Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
 
-## Concepts
+## Main features
 
-Most of the ideas in train are borrowed from [Rails' Assets Pipeline](http://guides.rubyonrails.org/asset_pipeline.html) which is built on top of [Sprockets](https://github.com/sstephenson/sprockets). Train will compile, compress and fingerprint your assets. However, the actual implementation of train is mainly different from it, due to the reason of simplification. Unlike Pipeline, train will not try to grab so much control of assets path.
+* Organize assets with the [Include Directive](#include-directive).
+* [Pipeline](#pipeline) for [SASS](http://sass-lang.com/) and [CoffeeScript](coffeescript.org) in the runtime.
+* [Bundling and Fingerprinting Asserts](#bundling-and-fingerprinting-assets) for production.
 
-Like Pipeline, there is also the existence of manifest file, which is very important and very convenient to manage your assets' dependency.
+## Installation
 
-### Manifest File
+Get the package:
 
-You need add at least one template tag in your html page when you want to ask train to take care of your assets management, like this:
+```bash
+$ go get github.com/shaoshing/train
+```
+
+Install the command-line tool:
+
+```bash
+$ go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
+```
+
+### Prepare for the Pipeline feature
+
+If planning to use SASS or CoffeeScript, you should run the `diagnose` command to see whether your environment is fit for the feature. Otherwise, skip to [the next section](#quick-example).
+
+```bash
+# Diagnose and follow the instructions to get your environment prepared
+$ train diagnose
+
+# If you experience `command not found` error, you should add $GOPATH/bin to $PATH
+# or run the command as follow:
+$ $GOPATH/bin/train
+```
+
+### Quick Example
+
+```bash
+$ cd $GOPATH/src/github.com/shaoshing/train
+$ go run example/main.go
+# Visit localhost:8000 and play with the `include` directive and the SASS and CoffeeScript Pipeline.
+```
+
+In the example page, you can toggle the Include Directive feature, or try out the Pipeline feature by requesting a sass or coffee file.
+
+### Use it in your project
+
+First, allow train to handle assets requests by adding handler to the http.ServeMux:
 
 ```go
-{{javascript_tag "app"}}
+import "github.com/shaoshing/train"
+
+...
+
+// Adding handler to the http.DefaultServeMux
+train.ConfigureHttpHandler(nil)
+http.ListenAndServe(":8000", nil)
 ```
 
-And by default, in your `assets/javascripts/` folder, there must be a `app.js` or `app.coffee` file. Now the file will be treated as a manifest file.
+For custom ServeMux that overwrites the DefaultServeMux, you will need to pass the mux to `train.ConfigureHttpHandler`:
 
-What can we do in a manifest file? Add `require` directives(See more at Quick Look section).
+```go
+mux := http.NewServeMux()
 
-### App Layout
+...
 
-```
-|- app.go
-|
-|- assets
-	|- javascripts
-	|- stylesheets
-	|- images
-|- public
-	|- assets
-		|- javascripts
-		|- stylesheets
-		|- images
+train.ConfigureHttpHandler(mux)
+http.ListenAndServe(":8000", mux)
 ```
 
-By default, you should put all your Javascript assets inside the `assets/javascripts` folder, css inside `assets/stylesheets`. Even though there are not limitations about your image assets, but as most good fellows did, `assets/images` is the right way to go.
+Next, add the helper functions to templates so that Train can generate assets links for you:
 
-`public/assets` is an important trick `train` uses. Each time when you boot train, it will detect whether the `public/assets` exits, if it does, train will serve your assets from that folder instead of your `assets` folder. Since then, when your app is still under developing, remember to remove your `public/assets` folder and don't put any of your files inside this folder in case of misguiding `train` or some unnecessary loss of time and codes.
+```go
+import "github.com/shaoshing/train"
+import "html/templates"
 
-## Quick Look
+...
 
-Use Train to manage your asset's dependencies. Enables you to write javascript or stylesheet in the following way:
-
-### Javascript
-
-assets/javascripts/base.js
-
-```js
-appName = "...";
-```
-
-assets/javascripts/app.js
-
-```js
-//= require javascripts/base
-
-$(function(){
-  // Do something cool
+tpl := template.New("home")
+// Adding helpers
+tpl.Func(template.FuncMap{
+  "javascript_tag":            train.JavascriptTag,
+  "stylesheet_tag":            train.StylesheetTag,
+  "stylesheet_tag_with_param": train.StylesheetTagWithParam,
 })
+tpl.ParseFiles("home.html")
+tpl.Execute(wr, nil)
 ```
 
-GET /assets/javascripts/app.js
+Now in your template file, you can use the above helpers to include your assets:
+
+```html
+(example: home.html)
+
+<html>
+  <head>
+  {{stylesheet_tag "main"}}
+  {{stylesheet_tag "home"}}
+
+  {{javascript_tag "main"}}
+  {{javascript_tag "home"}}
+  ...
+  </head>
+…
+</html>
+```
+
+Train enforce the following assets hierarchy and generate asset paths accordingly:
+
+```
+Project Root
+├── assets
+│   ├── javascripts // put js and coffee scripts here
+│   │   ├── main.js
+│   │   ├── home.coffee
+│   └── stylesheets // put css and sass here
+│       ├── main.sass
+│       ├── home.css
+```
+
+## Include Directive
+
+Train allows you specify dependency inside asset file by using the `include` directive, and when you include the file using Train's helper, Train will check the dependency and expand the file into related files.
+
+Say you have the following files:
+
+```
+├── assets
+│   ├── javascripts
+│   │   ├── base.js
+│   │   ├── app.js   // depends on base.js
+```
+
+The regular way of insuring the dependency would be including both javascripts in the html file, something like this:
+
+```html
+<script src="/assets/javascripts/basic.js"></script>
+<script src="/assets/javascripts/app.js"></script>
+```
+
+In the Train way, you can do it by specifying the dependency in app.js:
 
 ```js
-appName = "...";
-
-$(function(){
-  // Do something cool
-})
+//= require javascripts/app
+...
 ```
 
-### Stylesheet
+And then use the helper to include app.js:
 
-assets/stylesheets/base.css
-
-```css
-h1, h2{ padding:0; }
+```html
+{{javascript_tag "app}}
 ```
 
-assets/stylesheets/app.css
+When request for the html, the content will become:
+
+```html
+<script src="/assets/javascripts/basic.js?3392212"></script>
+<script src="/assets/javascripts/app.js?3392212"></script>
+```
+
+To use the include directive in css is similar to js:
 
 ```css
 /*
  *= require stylesheets/base
  */
-
-body{...}
+...
 ```
 
-GET /assets/stylesheets/app.css
+### SASS and CoffeeScript
 
-```css
-h1, h2{ padding:0; }
+The Include Directive is only available for js and css. However, SASS already has the @import directive, which is doing the same thing. For CoffeeScript, you will have to manage the dependencies in a regular way.
 
-body{...}
+## Pipeline
+
+When handling js or css request, Train will first look for the asset file with the same extension in the assets folder. If the file cannot be found, it will keep searching for a alternative extension, which is .sass/.scss for .css and .coffee for .js . When found, Train will convert the file into the desired extension.
+
+Take a look at an simple example:
+
+```
+├── assets
+│   ├── stylesheets
+│   │   ├── app.sass
 ```
 
-### CoffeeScript
+In the html, you include the sass file as if it is a css file:
 
-assets/javascripts/app.coffee
-
-```coffee
-alert "Hello CoffeeScript!"
+```html
+{{stylesheet_tag "app}}
 ```
 
-GET /assets/javascripts/app.js
+### Configuration
 
-```coffee
-alert("Hello CoffeeScript!");
-```
-
-### SASS
-
-assets/stylesheets/app.sass
-
-```sass
-body
-  color: red
-```
-
-GET /assets/stylesheets/app.js
-
-```sass
-body{
-  color: red; }
-```
-
-## Usage
-
-### Typical Usage
-
-By default, train will register '/assets/' http url pattern, if you want to use another url prefix, please re-config it before calling `Run`.
+There are several configuration options related to the Pipeline feature:
 
 ```go
-  package main
+// From SASS's doc:
+// When set to true, causes the line number and file where a selector is defined to be
+// emitted into the compiled CSS in a format that can be understood by the browser. Useful in
+// conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
+// for displaying the Sass filename and line number.
+train.Config.SASS.DebugInfo = true; // false by default
 
-  import (
-    "fmt"
-    "github.com/shaoshing/train"
-    "net/http"
-  )
 
-  func main() {
-      // By passing the nil param, train will add http handler to the http.DefaultServeMux to handle all asset requests starting with "/assets/". However, if you are using custom ServeMux, you can simply pass your ServeMux into it.
-      train.ConfigureHttpHandler(nil)
-      train.ConfigureHttpHandler(nil)
+// From SASS's doc:
+// When set to true, causes the line number and file where a selector is defined to be emitted
+// into the compiled CSS as a comment. Useful for debugging, especially when using imports and mixins.
+train.Config.SASS.LineNumbers = true; // false by default
 
-      fmt.Println("Listening to localhost:8000")
-      http.ListenAndServe(":8000", nil)
-  }
+
+// Show SASS and CoffeeScript errors.
+train.Config.Verbose = true; // false by default
 ```
 
-### Default Configurations
+## Bundling and Fingerprinting Assets
 
-Train package has exported `Config` as the configurational interface. currently there are two options:
+You probably want to merge or convert the assets in production site for performance concern. This is done by running Train's command-line tool `train` without any option:
 
-```go
-{
-	AssetsPath: "assets",
-	AssetsUrl:  "/assets/",
-	// Whether to serve bundled assets in development mode. This option is ignored
-	// when in production mode, that is, the ./public/assets folder exists.
-	BundleAssets bool
-	// When set to DevelopmentMode, assets are read from ./assets
-	// When set to ProductionMode, assets are read from ./public/assets
-	// It is set to ProductionMode automatically if the ./public/assets exist.
-	Mode string
-	SASS sassConfig
-}
-```
-
-`AssetsPath` is used to specify the the folder where you put all your assets, defaulted to "assets".
-
-`AssetsUrl` is used to specify the url pattern that train will use to register on http.ServeMux, defaulted to "/assets/"
-
-If you want to change the default configuration, make sure you change it before `train.ConfigureHttpHandler`.
-
-### Re-config Assets URL
-
-```go
-package main
-
-import (
-  "fmt"
-  "github.com/shaoshing/train"
-  "net/http"
-)
-
-func main() {
-    train.Config.AssetsUrl = "/custom/path"
-    train.ConfigHttpHandler(nil)
-
-    fmt.Println("Listening to localhost:8000")
-    http.ListenAndServe(":8000", nil)
-}
-```
-
-### Template Helpers
-
-In order to use `javascript_tag` and `stylesheet_tag`, you need add train's template helpers. Like below:
-
-```go
-  import "github.com/shaoshing/train"
-
-  func main() {
-    tmpl := template.New("index")
-    tmpl.Funcs(train.HelperFuncs)
-    tmpl.Parse(`
-    {{define "index"}}
-      {{javascript_tag "app"}}
-
-      {{stylesheet_tag "app"}}
-    {{end}}
-    `)
-
-    tmpl.Execute(os.Stdout, "index", nil)
-    //
-    // <script src="/assets/javascripts/base.js?12345"></script>
-    // <script src="/assets/javascripts/app.js?12345"></script>
-    //
-    // <link rel="stylesheet" href="/assets/stylesheets/base.css?12345">
-    // <link rel="stylesheet" href="/assets/stylesheets/app.css?12345">
-  }
-```
-
-## Production
-
-Install the command line tool to bundle and compress assets automatically:
-
-```sh
-# Install the train command. Run "train help" to see help info.
-# Be sure to add $GOPATH/bin to you $PATH env. Otherwise you will have to run $GOPATH/bin/train
-go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
-
-train
+```bash
+$ cd project/root
+$ train
 -> clean bundled assets
 -> copy assets from assets
--> bundle assets with require directive
+-> bundle and compile assets
 -> compress assets
-
-ls public/assets
+-> Fingerprinting Assets
 ```
 
-The train command will bundle your assets into the public/assets folder, with all files expaneded and compressed (by YUI compressor).
-You can then use any web servers (nginx, apache, or the Go's file server) to serve these static files.
-The template helpers will also stop expanding files if it found the public assets folder. That is, the following code:
+The following example is what were generated after running the `train` command:
+
+```
+Project Root
+├── assets
+│   ├── javascripts
+│   │   ├── main.js
+│   │   ├── app.js
+│   │   ├── home.coffee
+│   └── stylesheets
+│       ├── main.sass
+│       ├── home.css
+├── public
+│   ├── assets // generated by train
+│   │   ├── manifest.txt
+│   │   ├── javascripts
+│   │   │   ├── main.js
+│   │   │   ├── main-223e2f3f9ca508630ead4db28042cc42.js
+│   │   │   ├── app.js
+│   │   │   ├── app-c5d14af50112f85c0aee9181b14f02e4.js
+│   │   │   ├── home.js
+│   │   │   ├── home-c471ecdacdaf77f591100c4cffd51f41.js
+│   │   └── stylesheets
+│   │       ├── main.css
+│   │       ├── main-d208d2ef0e80f9a7d372f0bd681f8ade.css
+│   │       ├── home.css
+│   │       ├── home-924c344bccc46742a90835cc104dbe20.css
+```
+
+When Train detect the public/assets folder, it will disable the Include Directive and Pipeline features and serve from these static files directly. Template helpers will also stop expanding assets and generate with fingerprinted paths:
 
 ```go
 {{javascript_tag "app"}}
-{{stylesheet_tag "app"}}
+{{stylesheet_tag "home"}}
+
+// to
+
+<script src="/assets/javascripts/app-c5d14af50112f85c0aee9181b14f02e4.js"></script>
+<link rel="stylesheet" href="/assets/stylesheets/home-924c344bccc46742a90835cc104dbe20.css">
 ```
 
-Will become:
+### Why Fingerprinting?
 
-	<script src="/assets/javascripts/app-f72c58d3009ff4412f20393e0447674c.js"></script>
-	<link rel="stylesheet" href="/assets/stylesheets/app-df05cdccb878a7efa14a98ea2e34e894.css">
+From Rails' Assets Pipeline Document:
+
+```
+Fingerprinting is a technique that makes the name of a file dependent on the contents of the file.
+When the file contents change, the filename is also changed. For content that is static or infrequently
+changed, this provides an easy way to tell whether two versions of a file are identical, even across
+different servers or deployment dates.
+```
+
+Checkout [its document](http://guides.rubyonrails.org/asset_pipeline.html#what-is-fingerprinting-and-why-should-i-care) for more details about this technique.
+
+### Deploy to Production Server
+
+There are two ways to deploy the Bundled and Fingerprinted assets to your server:
+
+1. Run the `train` command in the production server after each deployment. By doing this you can make sure to update public/assets to the latest. This is the simples way, but it requires your server have Ruby and required Gems if you are using the Pipeline feature.
+
+2. Run the `train` command in your local machine and upload the assets to the production server. With this way, the production server doesn't need to have Ruby and required Gems for the command.
+
+Here is bash snippet to deploy assets using the second way:
+
+```bash
+SERVER="replace to your server's ssh address"
+SERVER_PUBLIC="replace to your server's public path"
+
+echo "Bundle assets"
+$GOPATH/bin/train
+
+if [[ $? != 0 ]] ; then
+  echo "== fail to bundle assets"
+  exit 1
+fi
+
+echo "Copy assets to $SERVER"
+cd public
+tar zcf assets.zip assets
+scp assets.zip "$SERVER":assets.zip
+ssh $SERVER "tar mxf assets.zip && sudo cp -r assets/* $SERVER_PUBLIC/assets/ && rm assets.zip"
+rm -f assets.zip assets
+cd -
+```
+
+## Status
+
+Train is production ready, and has been used in our production site [Qortex](https://qortex.net). You are very welcome to report usage in your project.
+
+### Build status:
+
+[![Build Status](https://travis-ci.org/shaoshing/train.png?branch=master)](https://travis-ci.org/shaoshing/train) [https://travis-ci.org/shaoshing/train](https://travis-ci.org/shaoshing/train)
+
+## Contribution
+
+* Fork
+* Change
+* Test (./test_all.sh)
+* Send Pull Request
 
 ## License
 
