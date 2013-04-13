@@ -5,6 +5,8 @@ class Interpreter
   MASTER_PID = ARGV[1].to_i
 
   def self.serve
+    prepare_for_automatic_termination
+
     server = listen
     loop do
       client = server.accept
@@ -21,7 +23,7 @@ class Interpreter
     end
   end
 
-  # Shut down the interpreter when master process do not exist.
+  # Shut down the interpreter when master process does not exist.
   def self.prepare_for_automatic_termination
     interpreter_pid = Process.pid
     fork do
@@ -30,7 +32,7 @@ class Interpreter
         sleep 2
         begin
           Process.getpgid(MASTER_PID)
-        rescue #=> when master process can not be found
+        rescue #=> when master process cannot be found
           Interpreter.clean_up
           Process.kill 1, interpreter_pid
           exit
@@ -99,5 +101,4 @@ class Interpreter
 end
 
 trap("INT"){} #=> make silent the "Interrupted" error
-Interpreter.prepare_for_automatic_termination
 Interpreter.serve

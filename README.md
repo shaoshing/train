@@ -150,7 +150,7 @@ In the Train way, you can do it by specifying the dependency in app.js:
 And then use the helper to include app.js:
 
 ```html
-{{javascript_tag "app}}
+{{javascript_tag "app"}}
 ```
 
 When request for the html, the content will become:
@@ -188,7 +188,7 @@ Take a look at an simple example:
 In the html, you include the sass file as if it is a css file:
 
 ```html
-{{stylesheet_tag "app}}
+{{stylesheet_tag "app"}}
 ```
 
 ### Configuration
@@ -201,17 +201,17 @@ There are several configuration options related to the Pipeline feature:
 // emitted into the compiled CSS in a format that can be understood by the browser. Useful in
 // conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
 // for displaying the Sass filename and line number.
-train.Config.SASS.DebugInfo = true; // false by default
+train.Config.SASS.DebugInfo = true // false by default
 
 
 // From SASS's doc:
 // When set to true, causes the line number and file where a selector is defined to be emitted
 // into the compiled CSS as a comment. Useful for debugging, especially when using imports and mixins.
-train.Config.SASS.LineNumbers = true; // false by default
+train.Config.SASS.LineNumbers = true // false by default
 
 
 // Show SASS and CoffeeScript errors.
-train.Config.Verbose = true; // false by default
+train.Config.Verbose = true // false by default
 ```
 
 ## Bundling and Fingerprinting Assets
