@@ -68,6 +68,7 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 	conn.Close()
 
 	compiled := strings.Split(data.String(), "<<")
+
 	status := compiled[0]
 	result = compiled[1]
 

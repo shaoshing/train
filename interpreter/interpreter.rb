@@ -13,7 +13,7 @@ class Interpreter
       begin
         result = self.send("render_#{format}", content, option)
         client.write "success<<#{result}"
-      rescue => e
+      rescue Exception => e
         puts e
         client.write "error<<#{e}"
       end
