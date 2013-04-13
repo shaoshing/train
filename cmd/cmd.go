@@ -8,7 +8,10 @@ import (
 	"os/exec"
 )
 
+var helpFlag bool
+
 func main() {
+	flag.BoolVar(&helpFlag, "h", false, "")
 	flag.Parse()
 
 	command := "bundle"
@@ -16,6 +19,11 @@ func main() {
 	args := flag.Args()
 	if len(args) == 1 {
 		command = args[0]
+	}
+
+	if helpFlag {
+		showHelp()
+		return
 	}
 
 	switch command {
@@ -45,13 +53,26 @@ func bash(bash string) (out string, err error) {
 }
 
 func showHelp() {
-	fmt.Printf(`usage: train [command]
+	fmt.Printf(`usage: train [-h] [command]
 
-Commands:
+OPTIONS
+  -h
+    Show this help message
 
-   bundle: bundle assets into ./public/assets [run by default]
-  upgrade: install the latest qortex command.
- diagnose: trouble shooting.
-  version: %s
+COMMANDS
+  bundle [default]
+    Bundle assets into ./public/assets
+
+  upgrade
+    Update the package and Install the train command.
+
+  diagnose
+    Trouble shooting for the Pipeline feature.
+
+  help
+    Show this help message.
+
+  version
+    Show version (current version: %s)
 `, train.VERSION)
 }
