@@ -16,8 +16,7 @@ func main() {
 	fmt.Println("Listening to localhost:8000")
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
-		fmt.Printf("%s\n", err)
-		return
+		panic(err)
 	}
 }
 
@@ -25,37 +24,9 @@ func example(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	tpl := template.New("example")
-
 	tpl.Funcs(train.HelperFuncs)
-	tpl.Parse(`
-{{define "example"}}
-	<br/>
-	bundle assets: {{.BundleAssets}} (<a href="/toggle_bundle_assets">toggle</a>)
-	<br/>
-	<br/>
-	Examples:
-	<br/>
-	<br/>
-	{{javascript_tag "normal"}}
-	{{stylesheet_tag "normal"}}
-
-	<a href="/assets/javascripts/normal.js">JS 1</a><br/>
-	<a href="/assets/javascripts/require.js">JS 2</a> (with require directive)<br/>
-	<a href="/assets/javascripts/app.js">JS 3</a> (compiled from CoffeeScript <a href="/assets/javascripts/app.coffee">source</a>)<br/>
-	<a href="/assets/javascripts/app.err.js">JS 4</a> (compiled from CoffeeScript, but failed <a href="/assets/javascripts/app.err.coffee">source</a>)<br/>
-
-	<br/>
-	<a href="/assets/stylesheets/normal.css">CSS 1</a><br/>
-	<a href="/assets/stylesheets/require.css">CSS 2</a> (with require directive)<br/>
-	<a href="/assets/stylesheets/app.css">CSS 3</a> (compiled from SASS <a href="/assets/stylesheets/app.sass">source</a>)<br/>
-	<a href="/assets/stylesheets/app2.css">CSS 4</a> (compiled from SCSS <a href="/assets/stylesheets/app2.scss">source</a>)<br/>
-	<a href="/assets/stylesheets/app.err.css">CSS 5</a> (compiled from SASS, but failed <a href="/assets/stylesheets/app.err.sass">source</a>)<br/>
-{{end}}
-`)
-
-	tpl.ExecuteTemplate(w, "example", struct {
-		BundleAssets bool
-	}{train.Config.BundleAssets})
+	tpl.ParseFiles("example/index.html")
+	tpl.ExecuteTemplate(w, "example", struct{ BundleAssets bool }{train.Config.BundleAssets})
 }
 
 func toggle_bundle_assets(w http.ResponseWriter, r *http.Request) {
