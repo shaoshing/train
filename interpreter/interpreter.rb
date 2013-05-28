@@ -89,6 +89,7 @@ class Interpreter
 
     options[:debug_info] = true if option == "debug_info"
     options[:line_numbers] = true if option == "line_numbers"
+    options[:sourcemap] = true if option == "SourceMap"
 
     engine = Sass::Engine.new(content, options)
     engine.render

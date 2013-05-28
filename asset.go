@@ -36,6 +36,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	case ".sass", ".scss", ".coffee":
 		interpreter.Config.SASS.LineNumbers = Config.SASS.LineNumbers
 		interpreter.Config.SASS.DebugInfo = Config.SASS.DebugInfo
+		interpreter.Config.SASS.SourceMap = Config.SASS.SourceMap
 		interpreter.Config.Verbose = Config.Verbose
 		result, err = interpreter.Compile(filePath)
 	default:

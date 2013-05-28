@@ -210,6 +210,11 @@ train.Config.SASS.DebugInfo = true // false by default
 train.Config.SASS.LineNumbers = true // false by default
 
 
+//--sourcemap                  
+//Create sourcemap files next to the generated CSS files.
+train.Config.SASS.SourceMap = true // false by default
+
+
 // Show SASS and CoffeeScript errors.
 train.Config.Verbose = true // false by default
 ```

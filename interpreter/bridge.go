@@ -30,6 +30,7 @@ var Config struct {
 	SASS    struct {
 		DebugInfo   bool
 		LineNumbers bool
+		SourceMap   bool
 	}
 }
 
@@ -124,6 +125,9 @@ func getOption() string {
 	}
 	if Config.SASS.DebugInfo {
 		return "debug_info"
+	}
+	if Config.SASS.SourceMap {
+		return "sourcemap"
 	}
 	return ""
 }
