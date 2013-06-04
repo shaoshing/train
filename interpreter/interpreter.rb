@@ -98,13 +98,16 @@ class Interpreter
 
     source_map_uri = "/" + file_path + ".map"
     css_uri = file_path.sub(/\.(scss|sass)/, ".css")
-    results = engine.render_with_sourcemap(source_map_uri)
 
-    if option == "source_map"
-      results[1].to_json(:css_uri => css_uri, :sourcemap_path => source_map_uri)
-    else
-      results[0]
-    end
+    @source_map ||= {}
+    return @source_map[css_uri] if option == "source_map" && @source_map[css_uri]
+
+    results = engine.render_with_sourcemap(source_map_uri)
+    css = results[0]
+    source_map = results[1].to_json(:css_uri => css_uri, :sourcemap_path => source_map_uri)
+
+    @source_map[css_uri] = source_map
+    option == "source_map" ? @source_map[css_uri] : css
   end
 
   def self.render_coffee content, option, file_path
