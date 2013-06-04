@@ -10,10 +10,10 @@ class Interpreter
     server = listen
     loop do
       client = server.accept
-      format, option, content = read_all(client)
+      format, option, content, file_path = read_all(client)
 
       begin
-        result = self.send("render_#{format}", content, option)
+        result = self.send("render_#{format}", content, option, file_path)
         client.write "success<<#{result}"
       rescue Exception => e
         puts e
@@ -71,15 +71,19 @@ class Interpreter
    data.split("<<")
   end
 
-  def self.render_sass content, option
-    _render_sass(content, :sass, option)
+  def self.render_sass content, option, file_path
+    _render_sass(content, :sass, option, file_path)
   end
 
-  def self.render_scss content, option
-    _render_sass(content, :scss, option)
+  def self.render_scss content, option, file_path
+    _render_sass(content, :scss, option, file_path)
   end
 
-  def self._render_sass content, syntax, option
+  def self.render_sass_source_map content, option, file_path
+    _render_sass(content, :scss, "source_map", file_path)
+  end
+
+  def self._render_sass content, syntax, option, file_path
     require "sass"
 
     options = {
@@ -89,12 +93,21 @@ class Interpreter
 
     options[:debug_info] = true if option == "debug_info"
     options[:line_numbers] = true if option == "line_numbers"
-
+    options[:filename] = file_path
     engine = Sass::Engine.new(content, options)
-    engine.render
+
+    source_map_uri = "/" + file_path + ".map"
+    css_uri = file_path.sub(/\.(scss|sass)/, ".css")
+    results = engine.render_with_sourcemap(source_map_uri)
+
+    if option == "source_map"
+      results[1].to_json(:css_uri => css_uri, :sourcemap_path => source_map_uri)
+    else
+      results[0]
+    end
   end
 
-  def self.render_coffee content, option
+  def self.render_coffee content, option, file_path
     require "coffee-script"
     CoffeeScript.compile content
   end

@@ -56,6 +56,8 @@ h2 {
   color: green; }
 `, "text/css")
 
+	assertAsset("/assets/stylesheets/app.sass.map", `"file": "assets/stylesheets/app.css"`, "text/plain")
+
 	assertAsset("/assets/stylesheets/app2.css", `h2 {
   color: green; }
 
@@ -108,8 +110,8 @@ func get(url string) (body, contentType string, status int) {
 
 func assertAsset(url, expectedBody, expectedContentType string) {
 	body, contentType, _ := get(url)
-	assert.Equal(expectedBody, body)
-	assert.Equal(true, strings.Index(contentType, expectedContentType) != -1)
+	assert.Contain(expectedBody, body)
+	assert.True(strings.Index(contentType, expectedContentType) != -1)
 }
 
 func assert404(url string) {

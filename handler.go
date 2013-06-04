@@ -1,6 +1,7 @@
 package train
 
 import (
+	"github.com/shaoshing/train/interpreter"
 	"io"
 	"log"
 	"net/http"
@@ -18,6 +19,7 @@ func servePublicAssets(w http.ResponseWriter, r *http.Request) {
 var contentTypes = map[string]string{
 	".js":  "application/javascript",
 	".css": "text/css",
+	".map": "text/plain",
 }
 
 func serveAssets(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +41,16 @@ func serveAssets(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Header().Set("Content-Type", contentTypes[ext])
 			io.Copy(w, strings.NewReader(content))
+		}
+	case ".map":
+		filePath := strings.Replace(url, "/", "", 1)
+		sourcemap, err := interpreter.Compile(filePath)
+		if err != nil {
+			io.Copy(w, strings.NewReader(err.Error()))
+			log.Printf("Failed to compile sourcemap\nGET %s\n-----------------------\n%s\n", url, err.Error())
+		} else {
+			w.Header().Set("Content-Type", contentTypes[ext])
+			io.Copy(w, strings.NewReader(sourcemap))
 		}
 	default:
 		(*assetServer).ServeHTTP(w, r)

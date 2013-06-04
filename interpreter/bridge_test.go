@@ -38,6 +38,9 @@ func TestSass(t *testing.T) {
 	Config.SASS.LineNumbers = true
 	css, e = Compile("assets/stylesheets/app.sass")
 	assert.Contain("line 1", css)
+
+	css, e = Compile("assets/stylesheets/app.sass.map")
+	assert.Contain(`"file": "assets/stylesheets/app.css"`, css)
 }
 
 func TestCoffee(t *testing.T) {

@@ -41,7 +41,17 @@ func Compile(filePath string) (result string, err error) {
 		if e != nil {
 			panic(err)
 		}
-		result, err = interpreter.Render(strings.Replace(fileExt, ".", "", 1), content)
+		result, err = interpreter.Render(strings.Replace(fileExt, ".", "", 1), content, filePath)
+	case ".map":
+		filePath = strings.Replace(filePath, ".map", "", 1)
+		fileExt := path.Ext(filePath)
+		content, e := ioutil.ReadFile(filePath)
+		if e != nil {
+			panic(err)
+		}
+		result, err = interpreter.Render(strings.Replace(fileExt, ".", "", 1)+"_source_map", content, filePath)
+		wd, _ := os.Getwd()
+		result = strings.Replace(result, "../.."+wd, "", -1)
 	default:
 		err = errors.New("Unsupported format (" + filePath + "). Valid formats are: sass.")
 	}
@@ -49,7 +59,7 @@ func Compile(filePath string) (result string, err error) {
 	return
 }
 
-func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
+func (this *Interpreter) Render(format string, content []byte, filePath string) (result string, err error) {
 	this.Lock()
 	defer this.Unlock()
 
@@ -62,7 +72,7 @@ func (this *Interpreter) Render(format string, content []byte) (result string, e
 
 	option := getOption()
 
-	conn.Write([]byte(format + "<<" + option + "<<" + string(content)))
+	conn.Write([]byte(format + "<<" + option + "<<" + string(content) + "<<" + filePath))
 	var data bytes.Buffer
 	data.ReadFrom(conn)
 	conn.Close()

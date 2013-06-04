@@ -16,7 +16,7 @@ func assertEqual(path, content string) {
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(content, string(c))
+	assert.Contain(content, string(c))
 }
 
 func TestCommand(t *testing.T) {
