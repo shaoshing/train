@@ -5,7 +5,7 @@ install:
   - go get github.com/shaoshing/gotest
   - go get github.com/shaoshing/train
   - go get github.com/shaoshing/train/interpreter
-  - gem in sass
+  - gem in sass --pre
   - gem in coffee-script
 script:
   ./test_all.sh
