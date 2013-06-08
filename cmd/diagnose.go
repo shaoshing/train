@@ -11,7 +11,7 @@ import (
 func diagnose() bool {
 	var err error
 
-	fmt.Println("== Diagnosing\n")
+	fmt.Println("== Diagnosing")
 
 	var rubyVersion string
 	rubyVersion, err = bash(`ruby -e "puts RUBY_VERSION"`)
@@ -34,15 +34,19 @@ func diagnose() bool {
 	_, err = bash("gem which sass")
 	if err != nil {
 		fmt.Println("-- SASS is disabled because the required gem is not found.")
-		fmt.Println("   (install it if you wish to use SASS: gem install sass)\n")
+		fmt.Println("   (install it if you wish to use SASS: gem install sass)")
 		allGood = false
 	} else {
 		_, err = interpreter.Compile(assetsPath + "/stylesheets/font.sass")
 		if err != nil {
 			fmt.Println("-- SASS is disabled because error raised while compiling. Error:")
 			fmt.Printf("%s\n", err.Error())
-			fmt.Println("(this might related to your Ruby Environment; try re-installing Ruby)\n")
+			fmt.Println("(this might related to your Ruby Environment; try re-installing Ruby)")
 			allGood = false
+		} else {
+			sassVersion, _ := bash(`ruby -e "require 'sass'; puts Sass::VERSION"`)
+			supportSourceMap, _ := bash(`ruby -e 'require "sass"; e = Sass::Engine.new ""; puts(e.respond_to?(:render_with_sourcemap) ? "yes" : "no")'`)
+			fmt.Printf("-- SASS [supported] version: %s, sourcemap: %s\n", strings.Trim(sassVersion, "\n"), strings.Trim(supportSourceMap, "\n"))
 		}
 	}
 
@@ -56,8 +60,11 @@ func diagnose() bool {
 		if err != nil {
 			fmt.Println("-- CoffeeScript is disabled because error raised while compiling. Error: ")
 			fmt.Printf("%s\n", err.Error())
-			fmt.Println("(this might related to your Ruby Environment; try re-installing Ruby)\n")
+			fmt.Println("(this might related to your Ruby Environment; try re-installing Ruby)")
 			allGood = false
+		} else {
+			coffeeVersion, _ := bash(`ruby -e "require 'coffee-script'; puts CoffeeScript.version"`)
+			fmt.Printf("-- Coffee [supported] version: %s\n", strings.Trim(coffeeVersion, "\n"))
 		}
 	}
 
