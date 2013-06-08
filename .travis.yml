@@ -8,5 +8,5 @@ install:
   - gem in sass --pre
   - gem in coffee-script
 script:
-  cd $GOPATH/src/github.com/shaoshing/train
+  cd $HOME/gopath/src/github.com/shaoshing/train
   ./test_all.sh
