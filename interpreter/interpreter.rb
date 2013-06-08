@@ -96,18 +96,25 @@ class Interpreter
     options[:filename] = file_path
     engine = Sass::Engine.new(content, options)
 
-    source_map_uri = "/" + file_path + ".map"
     css_uri = file_path.sub(/\.(scss|sass)/, ".css")
-
     @source_map ||= {}
     return @source_map[css_uri] if option == "source_map" && @source_map[css_uri]
 
-    results = engine.render_with_sourcemap(source_map_uri)
-    css = results[0]
-    source_map = results[1].to_json(:css_uri => css_uri, :sourcemap_path => source_map_uri)
+    if engine.respond_to?(:render_with_sourcemap)
+      source_map_uri = "/" + file_path + ".map"
+      results = engine.render_with_sourcemap(source_map_uri)
+      css = results[0]
+      source_map = results[1].to_json(:css_uri => css_uri, :sourcemap_path => source_map_uri)
 
-    @source_map[css_uri] = source_map
-    option == "source_map" ? @source_map[css_uri] : css
+      @source_map[css_uri] = source_map
+      option == "source_map" ? @source_map[css_uri] : css
+    else
+      if option == "source_map"
+        raise "Please install sass pre-released SASS version (gem in sass --pre) to get support of sourcemap"
+      end
+
+      engine.render
+    end
   end
 
   def self.render_coffee content, option, file_path
