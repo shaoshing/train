@@ -7,7 +7,7 @@ import (
 
 var server func(w http.ResponseWriter, r *http.Request)
 
-func initFileServer() {
+func SetFileServer() {
 	setupFileServer()
 
 	if IsInProduction() {
@@ -25,7 +25,7 @@ func ConfigureHttpHandler(serveMux *http.ServeMux) {
 		serveMux = http.DefaultServeMux
 	}
 
-	initFileServer()
+	SetFileServer()
 
 	serveMux.Handle(Config.AssetsUrl, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ServeRequest(w, r)
