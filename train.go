@@ -5,15 +5,11 @@ import (
 	"net/http"
 )
 
-// setting serveMux to nil will use http.DefaultServeMux instead.
-func ConfigureHttpHandler(serveMux *http.ServeMux) {
+var server func(w http.ResponseWriter, r *http.Request)
+
+func initFileServer() {
 	setupFileServer()
 
-	if serveMux == nil {
-		serveMux = http.DefaultServeMux
-	}
-
-	var server func(w http.ResponseWriter, r *http.Request)
 	if IsInProduction() {
 		fmt.Println("[Production] Serving assets from ./public/assets")
 		server = servePublicAssets
@@ -21,8 +17,21 @@ func ConfigureHttpHandler(serveMux *http.ServeMux) {
 		fmt.Println("[Development] Serving assets from ./assets")
 		server = serveAssets
 	}
+}
+
+// setting serveMux to nil will use http.DefaultServeMux instead.
+func ConfigureHttpHandler(serveMux *http.ServeMux) {
+	if serveMux == nil {
+		serveMux = http.DefaultServeMux
+	}
+
+	initFileServer()
 
 	serveMux.Handle(Config.AssetsUrl, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		server(w, r)
+		ServeRequest(w, r)
 	}))
+}
+
+func ServeRequest(w http.ResponseWriter, r *http.Request) {
+	server(w, r)
 }
