@@ -32,6 +32,7 @@ func ConfigureHttpHandler(serveMux *http.ServeMux) {
 	}))
 }
 
+// use train.ServeRequest(w, r) to server a request manually.
 func ServeRequest(w http.ResponseWriter, r *http.Request) {
 	server(w, r)
 }
