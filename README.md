@@ -143,7 +143,7 @@ The regular way of insuring the dependency would be including both javascripts i
 In the Train way, you can do it by specifying the dependency in app.js:
 
 ```js
-//= require javascripts/app
+//= require javascripts/base
 ...
 ```
 
