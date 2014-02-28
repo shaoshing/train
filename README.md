@@ -74,7 +74,7 @@ Next, add the helper functions to templates so that Train can generate assets li
 
 ```go
 import "github.com/shaoshing/train"
-import "html/templates"
+import "html/template"
 
 ...
 
