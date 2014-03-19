@@ -34,6 +34,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 			result, err = ReadRawAsset(filePath, assetUrl)
 		}
 	case ".sass", ".scss", ".coffee":
+		interpreter.Config.AssetsPath = Config.AssetsPath
 		interpreter.Config.SASS.LineNumbers = Config.SASS.LineNumbers
 		interpreter.Config.SASS.DebugInfo = Config.SASS.DebugInfo
 		interpreter.Config.Verbose = Config.Verbose
