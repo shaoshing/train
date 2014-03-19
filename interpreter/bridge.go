@@ -27,6 +27,7 @@ var (
 
 var Config struct {
 	Verbose bool
+	AssetsPath string
 	SASS    struct {
 		DebugInfo   bool
 		LineNumbers bool
@@ -87,7 +88,7 @@ func (this *Interpreter) startRubyInterpreter() {
 	_, goFile, _, _ := runtime.Caller(0)
 	this.SocketName = generateUniqueSocketName()
 	currentPid := strconv.FormatInt(int64(os.Getpid()), 10)
-	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", this.SocketName, currentPid)
+	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", this.SocketName, currentPid, Config.AssetsPath)
 	waitForStarting := make(chan bool)
 	writer := &StdoutCapturer{waitForStarting}
 	this.cmd.Stdout = writer

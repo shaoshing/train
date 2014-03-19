@@ -3,6 +3,7 @@ require "socket"
 class Interpreter
   SOCKET_NAME = ARGV[0]
   MASTER_PID = ARGV[1].to_i
+  ASSETS_PATH = ARGV[2]
 
   def self.serve
     prepare_for_automatic_termination
@@ -83,7 +84,7 @@ class Interpreter
     require "sass"
 
     options = {
-      :load_paths => ["assets/stylesheets"],
+      :load_paths => ["#{ASSETS_PATH}/stylesheets"],
       :syntax => syntax
     }
 
