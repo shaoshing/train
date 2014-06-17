@@ -30,6 +30,7 @@ const (
 type sassConfig struct {
 	DebugInfo   bool
 	LineNumbers bool
+	SourceMap   bool
 }
 
 var Config = config{
