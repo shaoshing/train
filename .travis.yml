@@ -1,4 +1,6 @@
 language: go
+go:
+  - 1.2
 rvm:
   - 1.9.3
 install:
