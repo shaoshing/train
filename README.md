@@ -1,5 +1,7 @@
 # Train
 
+[![Build Status](https://travis-ci.org/shaoshing/train.png?branch=master)](https://travis-ci.org/shaoshing/train)
+
 Assets Management Package for web app in Go. The main purpose of it is to introduce some good practices already existed in Ruby on Rails' [Assets Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
 
 ## Main features
@@ -317,16 +319,25 @@ cd -
 
 Train is production ready, and has been used in our production site [Qortex](https://qortex.net). You are very welcome to report usage in your project.
 
-### Build status:
+Tested language / lib versions:
 
-[![Build Status](https://travis-ci.org/shaoshing/train.png?branch=master)](https://travis-ci.org/shaoshing/train) [https://travis-ci.org/shaoshing/train](https://travis-ci.org/shaoshing/train)
+* Go: go1.2.1 darwin/amd64
+* Ruby: 1.9.3-p392
+* SASS: 3.3.8
+* CoffeeScript: 2.2.0
 
 ## Contribution
 
-* Fork
-* Change
-* Test (./test_all.sh)
-* Send Pull Request
+* Fork & Clone
+* Make awesome changes (as well as tests)
+* Run the tests
+* Pull Request
+
+### Run the tests
+
+* Install Go (1.2.1) and Ruby (1.9.3-p392)
+* Install required ruby gems for testing ``cd interpreter && bundle``
+* Run all the tests ``./test_all.sh``
 
 ## License
 
