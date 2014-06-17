@@ -37,7 +37,7 @@ type config struct {
 var Config = config{
 	// AssetsPath for the SASS files. By default it will look for SASS files under
 	// the assets/stylesheets folder.
-	AssetsPath: "assets"
+	AssetsPath: "assets",
 }
 
 func Compile(filePath string) (result string, err error) {
