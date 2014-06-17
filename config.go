@@ -6,6 +6,7 @@ import (
 )
 
 type config struct {
+	// The folder that contains JavaScript and StyleSheet files. It will use "assets" by default.
 	AssetsPath string
 	AssetsUrl  string
 	// Show verbose logs. For example, SASS warnings.
