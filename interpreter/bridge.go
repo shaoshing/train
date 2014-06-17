@@ -25,13 +25,19 @@ var (
 	interpreter Interpreter
 )
 
-var Config struct {
+type config struct {
 	Verbose bool
 	AssetsPath string
 	SASS    struct {
 		DebugInfo   bool
 		LineNumbers bool
 	}
+}
+
+var Config = config{
+	// AssetsPath for the SASS files. By default it will look for SASS files under
+	// the assets/stylesheets folder.
+	AssetsPath: "assets"
 }
 
 func Compile(filePath string) (result string, err error) {
