@@ -74,13 +74,13 @@ Next, add the helper functions to templates so that Train can generate assets li
 
 ```go
 import "github.com/shaoshing/train"
-import "html/templates"
+import "html/template"
 
 ...
 
 tpl := template.New("home")
 // Adding helpers
-tpl.Func(template.FuncMap{
+tpl.Funcs(template.FuncMap{
   "javascript_tag":            train.JavascriptTag,
   "stylesheet_tag":            train.StylesheetTag,
   "stylesheet_tag_with_param": train.StylesheetTagWithParam,
