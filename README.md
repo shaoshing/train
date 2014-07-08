@@ -8,7 +8,7 @@ Assets Management Package for web app in Go. The main purpose of it is to introd
 
 * Organize assets with the [Include Directive](#include-directive).
 * [Pipeline](#pipeline) for [SASS](http://sass-lang.com/) and [CoffeeScript](coffeescript.org) in the runtime.
-* [Bundling and Fingerprinting Asserts](#bundling-and-fingerprinting-assets) for production.
+* [Bundling and Fingerprinting Assets](#bundling-and-fingerprinting-assets) for production.
 
 ## Installation
 
