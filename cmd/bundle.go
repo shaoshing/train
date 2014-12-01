@@ -52,6 +52,10 @@ func prepareEnv() bool {
 
 func removeAssets() {
 	fmt.Println("-> clean bundled assets")
+	_, err := os.Stat("public" + train.Config.AssetsUrl)
+	if err != nil && os.IsNotExist(err) {
+		panic(err)
+	}
 	if _, err := bash("rm -rf public" + train.Config.AssetsUrl); err != nil {
 		panic(err)
 	}
@@ -59,6 +63,11 @@ func removeAssets() {
 
 func copyAssets() {
 	fmt.Println("-> copy assets from", train.Config.AssetsPath)
+	_, err := os.Stat(train.Config.AssetsPath)
+	if err != nil && os.IsNotExist(err) {
+		panic(err)
+	}
+
 	if _, err := bash("cp -rf " + train.Config.AssetsPath + " public" + train.Config.AssetsUrl); err != nil {
 		panic(err)
 	}
