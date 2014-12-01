@@ -141,6 +141,10 @@ func compressAssets() {
 }
 
 func compress(files []string, option string) {
+	if len(files) == 0 {
+		return
+	}
+
 	_, err := exec.LookPath("java")
 	if err != nil {
 		fmt.Println("You don't have Java installed.")
