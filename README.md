@@ -21,7 +21,7 @@ $ go get github.com/shaoshing/train
 Install the command-line tool:
 
 ```bash
-$ go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
+$ go build github.com/shaoshing/train/cmd/train
 ```
 
 ### Prepare for the Pipeline feature
