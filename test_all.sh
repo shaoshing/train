@@ -1,5 +1,5 @@
 go test -i ./... &&
 go test -v &&
-cd cmd && go test -v && cd .. &&
-cd example && go test -v && cd .. &&
-cd interpreter && go test -v && cd ..
+pushd cmd/train && go test -v && popd &&
+pushd example && go test -v && popd &&
+pushd interpreter && go test -v && popd
