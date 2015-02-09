@@ -92,7 +92,6 @@ func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, conte
 			return
 		}
 		header := FindDirectivesHeader(&content, fileExtPattern)
-		fmt.Println("--------- ", filePath, " header: ", header)
 		content, err = ReadRawAndComplieAsset(filePath, assetUrl)
 		if len(header) != 0 {
 			content = strings.Replace(content, header, "", 1)
