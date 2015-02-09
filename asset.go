@@ -34,7 +34,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 			data.Write([]byte(strings.Join(contents, "\n")))
 			result = string(data.Bytes())
 		} else {
-			result, err = ReadRawAsset(filePath, assetUrl)
+			result, err = ReadRawAndComplieAsset(filePath, assetUrl)
 		}
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
@@ -57,6 +57,10 @@ var patterns = map[string](map[string]*regexp.Regexp){
 		"head":    regexp.MustCompile(`(.*\n)*(\ *\/\/\=\ *require\ +.*\n)+`),
 		"require": regexp.MustCompile(`^\ *\/\/\=\ *require\ +`),
 	},
+	".coffee": map[string]*regexp.Regexp{
+		"head":    regexp.MustCompile(`(.*\n)*(#=\ *require\ +.*\n)+`),
+		"require": regexp.MustCompile(`^#=\ *require\ +`),
+	},
 	".css": map[string]*regexp.Regexp{
 		"head":    regexp.MustCompile(`(.*\n)*(\ *\*\=\ *require\ +.*\n)+(\ *\*\/\ *\n)`),
 		"require": regexp.MustCompile(`^\ *\*\=\ *require\ +`),
@@ -67,8 +71,6 @@ func patternExt(fileExt string) string {
 	switch fileExt {
 	case ".scss", ".sass":
 		return ".css"
-	case ".coffee":
-		return ".js"
 	}
 
 	return fileExt
@@ -90,6 +92,8 @@ func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, conte
 			return
 		}
 		header := FindDirectivesHeader(&content, fileExtPattern)
+		fmt.Println("--------- ", filePath, " header: ", header)
+		content, err = ReadRawAndComplieAsset(filePath, assetUrl)
 		if len(header) != 0 {
 			content = strings.Replace(content, header, "", 1)
 
@@ -170,17 +174,25 @@ func isFileExist(path string) bool {
 }
 
 func ReadRawAsset(filePath, assetUrl string) (result string, err error) {
+	content, _err := ioutil.ReadFile(filePath)
+	if _err != nil {
+		err = errors.New("Asset Not Found: " + assetUrl)
+		return
+	}
+	result = string(content)
+
+	return
+}
+
+// .js, .css read raw
+// .coffee, .scss, .sass will compile
+func ReadRawAndComplieAsset(filePath, assetUrl string) (result string, err error) {
 	fileExt := path.Ext(filePath)
 
 	if fileExt == ".scss" || fileExt == ".sass" || fileExt == ".coffee" {
 		result, err = compileSassAndCoffee(filePath)
 	} else {
-		content, _err := ioutil.ReadFile(filePath)
-		if _err != nil {
-			err = errors.New("Asset Not Found: " + assetUrl)
-			return
-		}
-		result = string(content)
+		result, err = ReadRawAsset(filePath, assetUrl)
 	}
 
 	return

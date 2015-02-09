@@ -108,10 +108,11 @@ require.js
 
 	content, _ = ReadAsset("/assets/javascripts/require.coffee")
 	assert.Equal(`normal.js
-(function() {
- var a;
 
- a = 1;
+(function() {
+  var a;
+
+  a = 1;
 
 }).call(this);
 `, content)
