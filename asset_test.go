@@ -106,6 +106,16 @@ sub/require.js
 require.js
 `, content)
 
+	content, _ = ReadAsset("/assets/javascripts/require.coffee")
+	assert.Equal(`normal.js
+(function() {
+ var a;
+
+ a = 1;
+
+}).call(this);
+`, content)
+
 	content, _ = ReadAsset("/assets/stylesheets/require.css")
 	assert.Equal(`normal.css
 
@@ -114,6 +124,33 @@ sub/normal.css
 sub/require.css
 
 require.css
+`, content)
+
+	content, _ = ReadAsset("/assets/stylesheets/require.scss")
+	assert.Equal(`.normal1-scss {
+  color: blue; }
+
+sub/normal.css
+
+sub/require.css
+
+.normal1-scss {
+  color: blue; }
+
+.foo .bar {
+  color: red; }
+`, content)
+
+	content, _ = ReadAsset("/assets/stylesheets/require.sass")
+	assert.Equal(`.normal1-scss {
+  color: blue; }
+
+sub/normal.css
+
+sub/require.css
+
+.foo {
+  color: red; }
 `, content)
 
 	_, err = ReadAsset("/assets/javascripts/error.js")
