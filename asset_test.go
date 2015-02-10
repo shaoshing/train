@@ -142,6 +142,7 @@ sub/require.css
   color: red; }
 `, content)
 
+	// In current can not remove require comment lines
 	content, _ = ReadAsset("/assets/stylesheets/require.sass")
 	assert.Equal(`.normal1-scss {
   color: blue; }
@@ -150,6 +151,9 @@ sub/normal.css
 
 sub/require.css
 
+/*= require stylesheets/normal1
+ *= require stylesheets/sub/require
+ */
 .foo {
   color: red; }
 `, content)

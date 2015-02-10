@@ -34,7 +34,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 			data.Write([]byte(strings.Join(contents, "\n")))
 			result = string(data.Bytes())
 		} else {
-			result, err = ReadRawAndComplieAsset(filePath, assetUrl)
+			result, err = ReadRawAndCompileAsset(filePath, assetUrl)
 		}
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
@@ -92,7 +92,7 @@ func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, conte
 			return
 		}
 		header := FindDirectivesHeader(&content, fileExtPattern)
-		content, err = ReadRawAndComplieAsset(filePath, assetUrl)
+		content, err = ReadRawAndCompileAsset(filePath, assetUrl)
 		if len(header) != 0 {
 			content = strings.Replace(content, header, "", 1)
 
@@ -185,7 +185,7 @@ func ReadRawAsset(filePath, assetUrl string) (result string, err error) {
 
 // .js, .css read raw
 // .coffee, .scss, .sass will compile
-func ReadRawAndComplieAsset(filePath, assetUrl string) (result string, err error) {
+func ReadRawAndCompileAsset(filePath, assetUrl string) (result string, err error) {
 	fileExt := path.Ext(filePath)
 
 	if fileExt == ".scss" || fileExt == ".sass" || fileExt == ".coffee" {
