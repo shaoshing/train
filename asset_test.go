@@ -151,9 +151,6 @@ sub/normal.css
 
 sub/require.css
 
-/*= require stylesheets/normal1
- *= require stylesheets/sub/require
- */
 .foo {
   color: red; }
 `, content)

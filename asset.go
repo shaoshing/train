@@ -93,6 +93,7 @@ func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, conte
 		}
 		header := FindDirectivesHeader(&content, fileExtPattern)
 		content, err = ReadRawAndCompileAsset(filePath, assetUrl)
+		content = hotFixSASSCommentLines(content, fileExt)
 		if len(header) != 0 {
 			content = strings.Replace(content, header, "", 1)
 
@@ -170,6 +171,20 @@ func ResolvePath(assetUrl string) (assetPath string) {
 func isFileExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+// Hotfix SASS commet lines
+// from:
+//    /*= require foo
+// to:
+//    /*
+//     *= require foo
+func hotFixSASSCommentLines(content string, fileExt string) string {
+	if fileExt == ".sass" {
+		return strings.Replace(content, "/*= require", "/*\n *= require", 1)
+	}
+
+	return content
 }
 
 func ReadRawAsset(filePath, assetUrl string) (result string, err error) {
