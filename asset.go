@@ -18,7 +18,7 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	fileExt := path.Ext(filePath)
 
 	switch fileExt {
-	case ".js", ".css":
+	case ".js", ".css", ".scss", ".sass", ".coffee":
 		if Config.BundleAssets {
 			data := bytes.NewBuffer([]byte(""))
 			contents := []string{}
@@ -26,19 +26,16 @@ func ReadAsset(assetUrl string) (result string, err error) {
 				contents = append(contents, content)
 			})
 			if err != nil {
+				if !IsInProduction() {
+					fmt.Println(err)
+				}
 				return
 			}
 			data.Write([]byte(strings.Join(contents, "\n")))
 			result = string(data.Bytes())
 		} else {
-			result, err = ReadRawAsset(filePath, assetUrl)
+			result, err = ReadRawAndCompileAsset(filePath, assetUrl)
 		}
-	case ".sass", ".scss", ".coffee":
-		interpreter.Config.AssetsPath = Config.AssetsPath
-		interpreter.Config.SASS.LineNumbers = Config.SASS.LineNumbers
-		interpreter.Config.SASS.DebugInfo = Config.SASS.DebugInfo
-		interpreter.Config.Verbose = Config.Verbose
-		result, err = interpreter.Compile(filePath)
 	default:
 		err = errors.New("Unsupported Asset: " + assetUrl)
 	}
@@ -46,19 +43,42 @@ func ReadAsset(assetUrl string) (result string, err error) {
 	return
 }
 
+func compileSassAndCoffee(filePath string) (string, error) {
+	interpreter.Config.AssetsPath = Config.AssetsPath
+	interpreter.Config.SASS.LineNumbers = Config.SASS.LineNumbers
+	interpreter.Config.SASS.DebugInfo = Config.SASS.DebugInfo
+	interpreter.Config.Verbose = Config.Verbose
+	result, err := interpreter.Compile(filePath)
+	return result, err
+}
+
 var patterns = map[string](map[string]*regexp.Regexp){
 	".js": map[string]*regexp.Regexp{
 		"head":    regexp.MustCompile(`(.*\n)*(\ *\/\/\=\ *require\ +.*\n)+`),
 		"require": regexp.MustCompile(`^\ *\/\/\=\ *require\ +`),
 	},
+	".coffee": map[string]*regexp.Regexp{
+		"head":    regexp.MustCompile(`(.*\n)*(#=\ *require\ +.*\n)+`),
+		"require": regexp.MustCompile(`^#=\ *require\ +`),
+	},
 	".css": map[string]*regexp.Regexp{
-		"head":    regexp.MustCompile(`(.*\n)*(\ *\/\*\ *\n)(\ *\*\=\ *require\ +.*\n)+(\ *\*\/\ *\n)`),
+		"head":    regexp.MustCompile(`(.*\n)*(\ *\*\=\ *require\ +.*\n)+(\ *\*\/\ *\n)`),
 		"require": regexp.MustCompile(`^\ *\*\=\ *require\ +`),
 	},
 }
 
+func patternExt(fileExt string) string {
+	switch fileExt {
+	case ".scss", ".sass":
+		return ".css"
+	}
+
+	return fileExt
+}
+
 func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, content string)) (filePaths []string, err error) {
 	fileExt := path.Ext(filePath)
+	fileExtPattern := patternExt(fileExt)
 	var cacheKey string
 	if cacheKey, err = generateCacheKey(filePath); err != nil {
 		err = errors.New("Asset Not Found: " + assetUrl)
@@ -71,17 +91,18 @@ func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, conte
 		if err != nil {
 			return
 		}
-		header := FindDirectivesHeader(&content, fileExt)
-
+		header := FindDirectivesHeader(&content, fileExtPattern)
+		content, err = ReadRawAndCompileAsset(filePath, assetUrl)
+		content = hotFixSASSCommentLines(content, fileExt)
 		if len(header) != 0 {
 			content = strings.Replace(content, header, "", 1)
 
 			for _, line := range strings.Split(header, "\n") {
-				if !patterns[fileExt]["require"].Match([]byte(line)) {
+				if !patterns[fileExtPattern]["require"].Match([]byte(line)) {
 					continue
 				}
 
-				requiredAssetUrl := string(patterns[fileExt]["require"].ReplaceAll([]byte(line), []byte("")))
+				requiredAssetUrl := string(patterns[fileExtPattern]["require"].ReplaceAll([]byte(line), []byte("")))
 				if len(requiredAssetUrl) == 0 {
 					continue
 				}
@@ -95,7 +116,8 @@ func ReadAssetsFunc(filePath, assetUrl string, found func(filePath string, conte
 	for _, requiredAssetUrl := range requiredAssetUrls {
 		var paths []string
 		requiredFilePath := ResolvePath(requiredAssetUrl + fileExt)
-		paths, err = ReadAssetsFunc(requiredFilePath, requiredAssetUrl+fileExt, found)
+		requiredFileExt := path.Ext(requiredFilePath)
+		paths, err = ReadAssetsFunc(requiredFilePath, requiredAssetUrl+requiredFileExt, found)
 		if err != nil {
 			err = errors.New(fmt.Sprintf("%s\n--- required by %s", err.Error(), assetUrl))
 			return
@@ -114,8 +136,11 @@ func FindDirectivesHeader(content *string, fileExt string) string {
 }
 
 var mapAlterExtensions = map[string]string{
-	".css": ".sass|.scss",
-	".js":  ".coffee",
+	".css":    ".sass|.scss",
+	".sass":   ".scss|.css",
+	".scss":   ".sass|.css",
+	".js":     ".coffee",
+	".coffee": ".js",
 }
 
 // Find possible asset files.
@@ -148,13 +173,41 @@ func isFileExist(path string) bool {
 	return err == nil
 }
 
+// Hotfix SASS commet lines
+// from:
+//    /*= require foo
+// to:
+//    /*
+//     *= require foo
+func hotFixSASSCommentLines(content string, fileExt string) string {
+	if fileExt == ".sass" {
+		return strings.Replace(content, "/*= require", "/*\n *= require", 1)
+	}
+
+	return content
+}
+
 func ReadRawAsset(filePath, assetUrl string) (result string, err error) {
-	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
+	content, _err := ioutil.ReadFile(filePath)
+	if _err != nil {
 		err = errors.New("Asset Not Found: " + assetUrl)
 		return
 	}
 	result = string(content)
+
+	return
+}
+
+// .js, .css read raw
+// .coffee, .scss, .sass will compile
+func ReadRawAndCompileAsset(filePath, assetUrl string) (result string, err error) {
+	fileExt := path.Ext(filePath)
+
+	if fileExt == ".scss" || fileExt == ".sass" || fileExt == ".coffee" {
+		result, err = compileSassAndCoffee(filePath)
+	} else {
+		result, err = ReadRawAsset(filePath, assetUrl)
+	}
 
 	return
 }

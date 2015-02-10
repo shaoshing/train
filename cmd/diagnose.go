@@ -21,7 +21,7 @@ func diagnose() bool {
 		return false
 	}
 
-	if !strings.Contains(rubyVersion, "1.9") {
+	if !strings.Contains(rubyVersion, "2.2") {
 		fmt.Printf("-- Train requires Ruby version to be 1.9.x; you have %s", rubyVersion)
 		fmt.Println("   (Please install required Ruby version if you wish to use SASS or CoffeeScript)")
 		return false
