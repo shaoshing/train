@@ -1,7 +1,0 @@
-source "https://rubygems.org"
-
-ruby '2.2.0'
-
-gem 'sass', '3.3.8'
-gem 'coffee-script', '2.2.0'
-

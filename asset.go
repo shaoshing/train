@@ -152,7 +152,6 @@ var mapAlterExtensions = map[string]string{
 func ResolvePath(assetUrl string) (assetPath string) {
 	assetPath = string(strings.Replace(assetUrl, Config.AssetsUrl, "", 1))
 	assetPath = path.Clean(Config.AssetsPath + "/" + assetPath)
-
 	fileExt := path.Ext(assetPath)
 	alterExts, hasAlterExt := mapAlterExtensions[fileExt]
 	if !isFileExist(assetPath) && hasAlterExt {

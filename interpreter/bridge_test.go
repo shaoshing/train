@@ -13,7 +13,7 @@ func init() {
 func TestSass(t *testing.T) {
 	assert.Test = t
 
-	css, e := Compile("assets/stylesheets/app.sass")
+	css, e := Compile("assets/stylesheets/app.scss")
 	if e != nil {
 		panic(e)
 	}
