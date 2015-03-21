@@ -24,7 +24,7 @@ type config struct {
 const (
 	DEVELOPMENT_MODE = "development"
 	PRODUCTION_MODE  = "production"
-	VERSION          = "0.1"
+	VERSION          = "0.1.1"
 )
 
 type sassConfig struct {
