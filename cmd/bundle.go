@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"github.com/shaoshing/train"
+	"github.com/huacnlee/train"
 	"io"
 	"io/ioutil"
 	"os"
