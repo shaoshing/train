@@ -7,7 +7,7 @@ Assets Management Package for web app in Go. The main purpose of it is to introd
 ## Main features
 
 * Organize assets with the [Include Directive](#include-directive).
-* [Pipeline](#pipeline) for [SASS](http://sass-lang.com/) and [CoffeeScript](coffeescript.org) in the runtime.
+* [Pipeline](#pipeline) for [SASS](https://github.com/sass/sassc) and [CoffeeScript](coffeescript.org) in the runtime.
 * [Bundling and Fingerprinting Assets](#bundling-and-fingerprinting-assets) for production.
 
 ## Installation
@@ -22,6 +22,13 @@ Install the command-line tool:
 
 ```bash
 $ go build -o $GOPATH/bin/train github.com/huacnlee/train/cmd
+```
+
+Install [sassc](https://github.com/sass/sassc), [CoffeeCcript](http://coffeescript.org/)
+
+```bash
+$ brew install sassc # Homebrew
+$ npm install -g coffee-script
 ```
 
 ### Prepare for the Pipeline feature

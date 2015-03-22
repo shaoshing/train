@@ -31,12 +31,12 @@ func TestSass(t *testing.T) {
 	assert.True(e != nil)
 	assert.Contain("Could not compile sass:", e.Error())
 
-	Config.SASS.DebugInfo = true
-	css, e = Compile("assets/stylesheets/app.sass")
-	assert.Contain("-sass-debug-info", css)
+	// Config.SASS.DebugInfo = true
+	// css, e = Compile("assets/stylesheets/app.scss")
+	// assert.Contain("-sass-debug-info", css)
 
 	Config.SASS.LineNumbers = true
-	css, e = Compile("assets/stylesheets/app.sass")
+	css, e = Compile("assets/stylesheets/app.scss")
 	assert.Contain("line 1", css)
 }
 

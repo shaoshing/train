@@ -53,7 +53,7 @@ require.css
   color: green; }
 
 h2 {
-  color: green; }
+  color: red; }
 `, "text/css")
 
 	assertAsset("/assets/stylesheets/app2.css", `h2 {

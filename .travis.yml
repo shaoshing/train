@@ -1,13 +1,13 @@
 language: go
 go:
   - 1.2
-rvm:
-  - 2.2.0
+node_js:
+  - "0.10"
 install:
   - go get github.com/shaoshing/gotest
   - go get github.com/shaoshing/train
   - go get github.com/shaoshing/train/interpreter
-  - gem in sass
-  - gem in coffee-script
+  - npm install node-sass
+  - npm install coffee-script
 script:
   ./test_all.sh

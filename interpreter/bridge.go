@@ -1,10 +1,10 @@
 package interpreter
 
 import (
-	"bytes"
 	"errors"
 	"os/exec"
 	"path"
+	"strings"
 	"sync"
 )
 
@@ -38,23 +38,28 @@ func Compile(filePath string) (result string, err error) {
 	switch fileExt {
 	case ".sass", ".scss":
 		fileDir := path.Dir(filePath)
-		cmd := exec.Command("sassc", "-t", "nested", "-I", fileDir, filePath)
-		var out bytes.Buffer
-		cmd.Stdout = &out
-		err := cmd.Run()
-		if err != nil {
-			panic(err)
+		opts := []string{"-t", "nested"}
+
+		if Config.SASS.LineNumbers {
+			opts = append(opts, "--line-numbers")
 		}
-		result = out.String()
+		if Config.SASS.DebugInfo {
+			opts = append(opts, "--line-comments")
+		}
+		opts = append(opts, "-I", fileDir, filePath)
+		out, e := exec.Command("sassc", opts...).Output()
+		result = string(out)
+		if e != nil {
+			err = errors.New("Could not compile sass: 'sassc " +
+				strings.Join(opts, " ") + "' failed: " + e.Error())
+		}
 	case ".coffee":
-		cmd := exec.Command("coffee", "-p", filePath)
-		var out bytes.Buffer
-		cmd.Stdout = &out
-		err := cmd.Run()
-		if err != nil {
-			panic(err)
+		out, e := exec.Command("coffee", "-p", filePath).Output()
+		result = string(out)
+		if e != nil {
+			err = errors.New("Could not compile coffee: 'coffee -p " +
+				filePath + "' failed: " + e.Error())
 		}
-		result = out.String()
 	default:
 		err = errors.New("Unsupported format (" + filePath + "). Valid formats are: sass.")
 	}
