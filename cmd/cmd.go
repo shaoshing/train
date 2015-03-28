@@ -67,6 +67,10 @@ OPTIONS
     Assets source path, default: ./assets
     example: $ train --source app/assets bundle
 
+  --out
+    Assets output path, default: ./public
+    example: $ train --out /tmp/public bundle
+
 COMMANDS
   bundle [default]
     Bundle assets into ./public/assets
