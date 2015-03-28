@@ -1,0 +1,1 @@
+go build -o $GOPATH/bin/train github.com/huacnlee/train/cmd

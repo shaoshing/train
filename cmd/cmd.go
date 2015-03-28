@@ -9,15 +9,17 @@ import (
 )
 
 var helpFlag bool
+var sourceFlag string
 
 func main() {
 	flag.BoolVar(&helpFlag, "h", false, "")
+	flag.StringVar(&sourceFlag, "source", "./assets", "")
 	flag.Parse()
 
 	command := "bundle"
 
 	args := flag.Args()
-	if len(args) == 1 {
+	if len(args) >= 1 {
 		command = args[0]
 	}
 
@@ -28,7 +30,7 @@ func main() {
 
 	switch command {
 	case "bundle":
-		bundle()
+		bundle(sourceFlag)
 	case "upgrade":
 		upgrade()
 	case "diagnose":
@@ -58,6 +60,10 @@ func showHelp() {
 OPTIONS
   -h
     Show this help message
+
+  --source
+    Assets source path, default: ./assets
+    example: $ train --source app/assets bundle
 
 COMMANDS
   bundle [default]

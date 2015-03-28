@@ -23,7 +23,9 @@ var Helps = `Available commands:
    upgrade: get and install latest train.
 `
 
-func bundle() {
+func bundle(assetsPath string) {
+	train.Config.AssetsPath = assetsPath
+	fmt.Println("bundle assets from: ", train.Config.AssetsPath)
 	if !prepareEnv() {
 		return
 	}
