@@ -1,6 +1,6 @@
 # Train
 
-[![Build Status](https://travis-ci.org/shaoshing/train.png?branch=master)](https://travis-ci.org/shaoshing/train)
+[![Build Status](https://travis-ci.org/huacnlee/train.png?branch=master)](https://travis-ci.org/huacnlee/train)
 
 Assets Management Package for web app in Go. The main purpose of it is to introduce some good practices already existed in Ruby on Rails' [Assets Pipeline](http://guides.rubyonrails.org/asset_pipeline.html).
 
