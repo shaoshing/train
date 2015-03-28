@@ -38,23 +38,31 @@ func Compile(filePath string) (result string, err error) {
 	switch fileExt {
 	case ".sass", ".scss":
 		fileDir := path.Dir(filePath)
-		opts := []string{"-t", "nested"}
+		catCmd := exec.Command("cat", filePath)
+		opts := []string{"--output-style", "nested", "--indent-type", "space", "--indent-width", "2", "--linefeed", "lf"}
 
 		if Config.SASS.LineNumbers {
-			opts = append(opts, "--line-numbers")
+			opts = append(opts, "--source-comments")
 		}
 		if Config.SASS.DebugInfo {
-			opts = append(opts, "--line-comments")
+			opts = append(opts, "--source-comments")
 		}
-		opts = append(opts, "-I", fileDir, filePath)
-		out, e := exec.Command("sassc", opts...).Output()
-		result = string(out)
+		if fileExt == ".sass" {
+			opts = append(opts, "--indented-syntax")
+		}
+		opts = append(opts, "--include-path", fileDir)
+		cmd := exec.Command("node-sass", opts...)
+
+		out, e := pipeExecCommand(catCmd, cmd)
+
+		result = strings.TrimSpace(string(out))
 		if e != nil {
-			err = errors.New("Could not compile sass: 'sassc " +
+			err = errors.New("Could not compile sass: 'cat " +
 				strings.Join(opts, " ") + "' failed: " + e.Error())
+
 		}
 	case ".coffee":
-		out, e := exec.Command("coffee", "-p", filePath).Output()
+		out, e := exec.Command("coffee", "-p", filePath).CombinedOutput()
 		result = string(out)
 		if e != nil {
 			err = errors.New("Could not compile coffee: 'coffee -p " +
@@ -65,6 +73,24 @@ func Compile(filePath string) (result string, err error) {
 	}
 
 	return
+}
+
+func pipeExecCommand(cmds ...*exec.Cmd) ([]byte, error) {
+	for i, cmd := range cmds[:len(cmds)-1] {
+		out, err := cmd.StdoutPipe()
+		if err != nil {
+			return nil, err
+		}
+		cmd.Start()
+		cmds[i+1].Stdin = out
+	}
+
+	ret, err := cmds[len(cmds)-1].Output()
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func getOption() string {

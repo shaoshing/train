@@ -27,8 +27,8 @@ $ go build -o $GOPATH/bin/train github.com/huacnlee/train/cmd
 Install [sassc](https://github.com/sass/sassc), [CoffeeCcript](http://coffeescript.org/)
 
 ```bash
-$ brew install sassc # Homebrew
-$ npm install -g coffee-script
+$ npm install -g node-sass@2.0.1
+$ npm install -g coffee-script@1.6.2
 ```
 
 ### Prepare for the Pipeline feature

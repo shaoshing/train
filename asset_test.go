@@ -130,7 +130,6 @@ require.css
 	content, _ = ReadAsset("/assets/stylesheets/require.scss")
 	assert.Equal(`.normal1-scss {
   color: blue; }
-
 sub/normal.css
 
 sub/require.css
@@ -139,21 +138,18 @@ sub/require.css
   color: blue; }
 
 .foo .bar {
-  color: red; }
-`, content)
+  color: red; }`, content)
 
 	// In current can not remove require comment lines
 	content, _ = ReadAsset("/assets/stylesheets/require.sass")
 	assert.Equal(`.normal1-scss {
   color: blue; }
-
 sub/normal.css
 
 sub/require.css
 
 .foo {
-  color: red; }
-`, content)
+  color: red; }`, content)
 
 	_, err = ReadAsset("/assets/javascripts/error.js")
 	assert.Equal(`Asset Not Found: not/found.js
