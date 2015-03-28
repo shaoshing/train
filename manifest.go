@@ -10,14 +10,17 @@ type FpAssets map[string]string
 var ManifestInfo FpAssets
 
 const (
-	ManifestPath      = "public/assets/manifest.txt"
 	ManifestSeparator = "  ->  "
 )
+
+func ManifestPath() string {
+	return Config.PublicPath + "/assets/manifest.txt"
+}
 
 func LoadManifestInfo() error {
 	ManifestInfo = make(FpAssets)
 
-	content, err := ioutil.ReadFile(ManifestPath)
+	content, err := ioutil.ReadFile(ManifestPath())
 	if err != nil {
 		return err
 	}
@@ -38,6 +41,6 @@ func WriteToManifest(fpAssets FpAssets) (err error) {
 		content += assetUrl + ManifestSeparator + assetHashedUrl + "\n"
 	}
 
-	err = ioutil.WriteFile(ManifestPath, []byte(content), 0644)
+	err = ioutil.WriteFile(ManifestPath(), []byte(content), 0644)
 	return
 }

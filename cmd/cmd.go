@@ -9,11 +9,13 @@ import (
 )
 
 var helpFlag bool
-var sourceFlag string
+var sourcePath string
+var outPath string
 
 func main() {
 	flag.BoolVar(&helpFlag, "h", false, "")
-	flag.StringVar(&sourceFlag, "source", "./assets", "")
+	flag.StringVar(&sourcePath, "source", "./assets", "")
+	flag.StringVar(&outPath, "out", "./public", "")
 	flag.Parse()
 
 	command := "bundle"
@@ -30,7 +32,7 @@ func main() {
 
 	switch command {
 	case "bundle":
-		bundle(sourceFlag)
+		Bundle(sourcePath, outPath)
 	case "upgrade":
 		upgrade()
 	case "diagnose":
