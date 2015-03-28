@@ -194,7 +194,7 @@ func fingerPrintAssets() {
 			return
 		}
 
-		fpAssets[asset[6:]] = fpAsset[6:]
+		fpAssets[asset] = asset
 	}
 
 	if err := train.WriteToManifest(fpAssets); err != nil {
