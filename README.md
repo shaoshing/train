@@ -24,7 +24,7 @@ Install the command-line tool:
 $ go build -o $GOPATH/bin/train github.com/huacnlee/train/cmd
 ```
 
-Install [sassc](https://github.com/sass/sassc), [CoffeeCcript](http://coffeescript.org/)
+Install [node-sass](https://github.com/sass/node-sass), [CoffeeCcript](http://coffeescript.org/)
 
 ```bash
 $ npm install -g node-sass@2.0.1
