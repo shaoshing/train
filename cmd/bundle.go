@@ -197,7 +197,6 @@ func fingerPrintAssets() {
 		fpAssets[asset[6:]] = fpAsset[6:]
 	}
 
-	fmt.Println("-------------------- ", train.Config.PublicPath)
 	if err := train.WriteToManifest(fpAssets); err != nil {
 		panic(err)
 	}
