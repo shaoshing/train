@@ -57,7 +57,7 @@ func Compile(filePath string) (result string, err error) {
 
 		result = strings.TrimSpace(string(out))
 		if e != nil {
-			err = errors.New("Could not compile sass: 'cat " +
+			err = errors.New("Could not compile sass: 'cat " + filePath + " | node-sass" +
 				strings.Join(opts, " ") + "' failed: " + e.Error())
 
 		}
