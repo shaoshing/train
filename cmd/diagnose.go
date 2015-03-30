@@ -16,7 +16,7 @@ func diagnose() bool {
 	_, filename, _, _ := runtime.Caller(1)
 	assetsPath := path.Dir(filename) + "/assets"
 
-	_, err = bash("npm install -g node-sass")
+	_, err = bash("node-sass --version")
 	if err != nil {
 		fmt.Println("-- SASS is disabled because the required npm is not found.")
 		fmt.Println("   (install it if you wish to use SASS: npm install -g node-sass)\n")
@@ -30,7 +30,7 @@ func diagnose() bool {
 		}
 	}
 
-	_, err = bash("npm install -g coffee-script")
+	_, err = bash("coffee -v")
 	if err != nil {
 		fmt.Println("-- CoffeeScript is disabled because the required npm is not found.")
 		fmt.Println("   (install it if you wish to use CoffeeScript : npm install -g coffee-script)")
