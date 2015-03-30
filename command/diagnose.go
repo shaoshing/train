@@ -1,4 +1,4 @@
-package main
+package trainCommand
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-func diagnose() bool {
+func Diagnose() bool {
 	var err error
 
 	fmt.Println("== Diagnosing\n")

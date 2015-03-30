@@ -1,4 +1,4 @@
-package main
+package trainCommand
 
 import (
 	"crypto/md5"

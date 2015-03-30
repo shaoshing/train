@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"github.com/huacnlee/train"
-	"os/exec"
+	. "github.com/huacnlee/train/command"
 )
 
 var helpFlag bool
@@ -34,9 +33,9 @@ func main() {
 	case "bundle":
 		Bundle(sourcePath, outPath)
 	case "upgrade":
-		upgrade()
+		Upgrade()
 	case "diagnose":
-		diagnose()
+		Diagnose()
 	case "version":
 		fmt.Println("Train version", train.VERSION)
 	case "help":
@@ -44,16 +43,6 @@ func main() {
 	default:
 		showHelp()
 	}
-}
-
-func bash(bash string) (out string, err error) {
-	cmd := exec.Command("sh", "-c", bash)
-	var buf bytes.Buffer
-	cmd.Stderr = &buf
-	cmd.Stdout = &buf
-	err = cmd.Run()
-	out = buf.String()
-	return
 }
 
 func showHelp() {
