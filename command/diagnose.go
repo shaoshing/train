@@ -2,9 +2,10 @@ package trainCommand
 
 import (
 	"fmt"
-	"github.com/huacnlee/train/interpreter"
 	"path"
 	"runtime"
+
+	"github.com/huacnlee/train/interpreter"
 )
 
 func Diagnose() bool {
@@ -13,7 +14,7 @@ func Diagnose() bool {
 	fmt.Println("== Diagnosing\n")
 
 	allGood := true
-	_, filename, _, _ := runtime.Caller(1)
+	_, filename, _, _ := runtime.Caller(0)
 	assetsPath := path.Dir(filename) + "/assets"
 
 	_, err = bash("node-sass --version")
