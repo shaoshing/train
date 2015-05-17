@@ -1,1 +1,1 @@
-normal.js
+@normal.js

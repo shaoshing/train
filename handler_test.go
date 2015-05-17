@@ -29,17 +29,17 @@ func TestDeliverUnbundledAssets(t *testing.T) {
 	assertAsset("/assets/images/dummy.png", "dummy\n", "image/png")
 	assert404("/assets/not/found.js")
 
-	assertAsset("/assets/javascripts/normal.js", "normal.js\n", "application/javascript")
+	assertAsset("/assets/javascripts/normal.js", "@normal.js\n", "application/javascript")
 	assertAsset("/assets/stylesheets/normal.css", "normal.css\n", "text/css")
 
-	assertAsset("/assets/javascripts/require.js", `normal.js
+	bundledJs := assertAsset("/assets/javascripts/require.js", "", "application/javascript")
+	assert.Contain("@sub/normal.js", bundledJs)
+	assert.Contain("@sub/normal1.coffee", bundledJs)
+	assert.Contain("@sub/require.js", bundledJs)
+	assert.Contain("@normal.js", bundledJs)
+	assert.Contain("@normal1.coffee", bundledJs)
+	assert.Contain("@require.js", bundledJs)
 
-sub/normal.js
-
-sub/require.js
-
-require.js
-`, "application/javascript")
 	assertAsset("/assets/stylesheets/require.css", `normal.css
 
 sub/normal.css
@@ -104,10 +104,13 @@ func get(url string) (body, contentType string, status int) {
 	return
 }
 
-func assertAsset(url, expectedBody, expectedContentType string) {
+func assertAsset(url, expectedBody, expectedContentType string) string {
 	body, contentType, _ := get(url)
-	assert.Equal(expectedBody, body)
+	if len(expectedBody) != 0 {
+		assert.Equal(expectedBody, body)
+	}
 	assert.Equal(true, strings.Index(contentType, expectedContentType) != -1)
+	return body
 }
 
 func assert404(url string) {

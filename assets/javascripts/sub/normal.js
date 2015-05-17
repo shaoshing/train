@@ -1,1 +1,1 @@
-sub/normal.js
+@sub/normal.js

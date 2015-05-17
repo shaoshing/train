@@ -1,3 +1,3 @@
 #
 #= require javascripts/normal
-a = 1
+file = "@require.coffee"

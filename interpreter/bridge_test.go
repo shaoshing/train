@@ -43,13 +43,13 @@ func TestSass(t *testing.T) {
 func TestCoffee(t *testing.T) {
 	assert.Test = t
 
-	css, e := Compile("assets/javascripts/app.coffee")
+	js, e := Compile("assets/javascripts/app.coffee")
 	if e != nil {
 		panic(e)
 	}
-	assert.Contain("square", css)
+	assert.Contain("square", js)
 
-	css, e = Compile("assets/javascripts/app.err.coffee")
+	js, e = Compile("assets/javascripts/app.err.coffee")
 	assert.True(e != nil)
 	assert.Contain("Could not compile coffee:", e.Error())
 }

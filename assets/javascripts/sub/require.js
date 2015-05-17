@@ -1,2 +1,3 @@
 //= require javascripts/sub/normal
-sub/require.js
+//= require javascripts/sub/normal1
+@sub/require.js
