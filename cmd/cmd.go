@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/huacnlee/train"
-	. "github.com/huacnlee/train/command"
+	"github.com/shaoshing/train"
+	. "github.com/shaoshing/train/command"
 )
 
 var helpFlag bool

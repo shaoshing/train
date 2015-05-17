@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/huacnlee/train"
+	"github.com/shaoshing/train"
 	"html/template"
 	"net/http"
 )

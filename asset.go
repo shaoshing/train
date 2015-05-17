@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/huacnlee/train/interpreter"
 	"io/ioutil"
 	"os"
 	"path"
 	"regexp"
 	"strconv"
 	"strings"
+  "github.com/shaoshing/train/interpreter"
 )
 
 func ReadAsset(assetUrl string) (result string, err error) {

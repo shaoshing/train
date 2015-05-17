@@ -1,7 +1,7 @@
 package trainCommand
 
 import (
-	"github.com/huacnlee/train"
+	"github.com/shaoshing/train"
 	"github.com/shaoshing/gotest"
 	"io/ioutil"
 	"testing"

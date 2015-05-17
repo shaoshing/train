@@ -5,7 +5,7 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/huacnlee/train/interpreter"
+	"github.com/shaoshing/train/interpreter"
 )
 
 func Diagnose() bool {
@@ -48,7 +48,7 @@ func Diagnose() bool {
 	if allGood {
 		fmt.Println("-- Great, your environment seems perfect for Train.")
 	} else {
-		fmt.Println("-- (Please create an issue at github.com/huacnlee/train/issues if you need help)")
+		fmt.Println("-- (Please create an issue at github.com/shaoshing/train/issues if you need help)")
 	}
 
 	return allGood
