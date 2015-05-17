@@ -56,23 +56,21 @@ func prepareEnv() bool {
 
 func removeAssets() {
 	fmt.Println("-> clean bundled assets")
-	_, err := os.Stat("public" + train.Config.AssetsUrl)
+	publicAssetPath := path.Join(train.Config.PublicPath, train.Config.AssetsUrl)
+	_, err := os.Stat(publicAssetPath)
 	if err != nil && os.IsNotExist(err) {
-		panic(err)
+		return
 	}
-	if _, err := bash("rm -rf " + train.Config.PublicPath + train.Config.AssetsUrl); err != nil {
+	if _, err := bash("rm -rf " + publicAssetPath); err != nil {
 		panic(err)
 	}
 }
 
 func copyAssets() {
 	fmt.Println("-> copy assets from", train.Config.AssetsPath)
-	_, err := os.Stat(train.Config.AssetsPath)
-	if err != nil && os.IsNotExist(err) {
-		panic(err)
-	}
 
-	if _, err := bash("cp -rf " + train.Config.AssetsPath + " " + train.Config.PublicPath + train.Config.AssetsUrl); err != nil {
+	publicAssetPath := path.Join(train.Config.PublicPath, train.Config.AssetsUrl)
+	if _, err := bash("cp -rf " + train.Config.AssetsPath + " " + publicAssetPath); err != nil {
 		panic(err)
 	}
 }
@@ -87,7 +85,7 @@ func bundleAssets() {
 	fmt.Println("-> bundle and compile assets")
 
 	train.Config.BundleAssets = true
-	publicAssetPath := train.Config.PublicPath + train.Config.AssetsUrl
+	publicAssetPath := path.Join(train.Config.PublicPath + train.Config.AssetsUrl)
 
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
 		if info.IsDir() {
