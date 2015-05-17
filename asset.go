@@ -53,13 +53,13 @@ func compileSassAndCoffee(filePath string) (string, error) {
 }
 
 var patterns = map[string](map[string]*regexp.Regexp){
+	".coffee": map[string]*regexp.Regexp{
+		"head":    regexp.MustCompile(`(.*\n)*(\ *#\=\ *require\ +.*\n)+`),
+		"require": regexp.MustCompile(`^\ *#\=\ *require\ +`),
+	},
 	".js": map[string]*regexp.Regexp{
 		"head":    regexp.MustCompile(`(.*\n)*(\ *\/\/\=\ *require\ +.*\n)+`),
 		"require": regexp.MustCompile(`^\ *\/\/\=\ *require\ +`),
-	},
-	".coffee": map[string]*regexp.Regexp{
-		"head":    regexp.MustCompile(`(.*\n)*(#=\ *require\ +.*\n)+`),
-		"require": regexp.MustCompile(`^#=\ *require\ +`),
 	},
 	".css": map[string]*regexp.Regexp{
 		"head":    regexp.MustCompile(`(.*\n)*(\ *\*\=\ *require\ +.*\n)+(\ *\*\/\ *\n)`),

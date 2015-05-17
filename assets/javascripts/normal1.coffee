@@ -1,1 +1,1 @@
-b = "normal1"
+file = "@normal1.coffee"

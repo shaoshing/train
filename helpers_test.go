@@ -18,7 +18,9 @@ func TestHelpers(t *testing.T) {
 
 	assert.Equal(`<script src="/assets/javascripts/normal.js?`+stamp+`"></script>`, string(JavascriptTag("normal")))
 	assert.Equal(`<script src="/assets/javascripts/normal.js?`+stamp+`"></script>
+<script src="/assets/javascripts/normal1.js?`+stamp+`"></script>
 <script src="/assets/javascripts/sub/normal.js?`+stamp+`"></script>
+<script src="/assets/javascripts/sub/normal1.js?`+stamp+`"></script>
 <script src="/assets/javascripts/sub/require.js?`+stamp+`"></script>
 <script src="/assets/javascripts/require.js?`+stamp+`"></script>`, string(JavascriptTag("require")))
 

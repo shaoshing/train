@@ -15,10 +15,10 @@ func TestReadingNormalAssets(t *testing.T) {
 	var err error
 
 	content, _ = ReadAsset("/assets/javascripts/normal.js")
-	assert.Equal("normal.js\n", content)
+	assert.Equal("@normal.js\n", content)
 
 	content, _ = ReadAsset("/assets/javascripts/sub/normal.js")
-	assert.Equal("sub/normal.js\n", content)
+	assert.Equal("@sub/normal.js\n", content)
 
 	_, err = ReadAsset("/assets/not/exists/normal.js")
 	assert.Equal("Asset Not Found: /assets/not/exists/normal.js", err.Error())
@@ -73,9 +73,9 @@ func TestRequireDirective(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(`normal.js
+	assert.Equal(`@normal.js
 
-sub/normal.js
+@sub/normal.js
 
 `, content)
 
@@ -97,25 +97,16 @@ func TestReadingAssetsWithRequire(t *testing.T) {
 	var err error
 
 	content, _ = ReadAsset("/assets/javascripts/require.js")
-	assert.Equal(`normal.js
-
-sub/normal.js
-
-sub/require.js
-
-require.js
-`, content)
+	assert.Contain("@sub/normal.js", content)
+	assert.Contain("@sub/normal1.coffee", content)
+	assert.Contain("@sub/require.js", content)
+	assert.Contain("@normal.js", content)
+	assert.Contain("@normal1.coffee", content)
+	assert.Contain("@require.js", content)
 
 	content, _ = ReadAsset("/assets/javascripts/require.coffee")
-	assert.Equal(`normal.js
-
-(function() {
-  var a;
-
-  a = 1;
-
-}).call(this);
-`, content)
+	assert.Contain("@normal.js", content)
+	assert.Contain("@require.coffee", content)
 
 	content, _ = ReadAsset("/assets/stylesheets/require.css")
 	assert.Equal(`normal.css
