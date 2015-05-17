@@ -1,4 +1,4 @@
-package main
+package trainCommand
 
 import (
 	"crypto/md5"
@@ -23,7 +23,11 @@ var Helps = `Available commands:
    upgrade: get and install latest train.
 `
 
-func bundle() {
+func Bundle(assetsPath string, publicPath string) {
+	train.Config.AssetsPath = assetsPath
+	train.Config.PublicPath = publicPath
+
+	fmt.Println("bundle assets from: ", train.Config.AssetsPath)
 	if !prepareEnv() {
 		return
 	}
@@ -35,10 +39,10 @@ func bundle() {
 }
 
 func prepareEnv() bool {
-	public, err := os.Stat("public")
+	public, err := os.Stat(train.Config.PublicPath)
 
 	if err != nil && os.IsNotExist(err) {
-		err := os.Mkdir("public", os.FileMode(0777))
+		err := os.Mkdir(train.Config.PublicPath, os.FileMode(0777))
 		if err != nil {
 			panic(err)
 		}
@@ -52,14 +56,14 @@ func prepareEnv() bool {
 
 func removeAssets() {
 	fmt.Println("-> clean bundled assets")
-	if _, err := bash("rm -rf public" + train.Config.AssetsUrl); err != nil {
+	if _, err := bash("rm -rf " + train.Config.PublicPath + train.Config.AssetsUrl); err != nil {
 		panic(err)
 	}
 }
 
 func copyAssets() {
 	fmt.Println("-> copy assets from", train.Config.AssetsPath)
-	if _, err := bash("cp -rf " + train.Config.AssetsPath + " public" + train.Config.AssetsUrl); err != nil {
+	if _, err := bash("cp -rf " + train.Config.AssetsPath + " " + train.Config.PublicPath + train.Config.AssetsUrl); err != nil {
 		panic(err)
 	}
 }
@@ -74,7 +78,7 @@ func bundleAssets() {
 	fmt.Println("-> bundle and compile assets")
 
 	train.Config.BundleAssets = true
-	publicAssetPath := "public" + train.Config.AssetsUrl
+	publicAssetPath := train.Config.PublicPath + train.Config.AssetsUrl
 
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
 		if info.IsDir() {
@@ -151,7 +155,7 @@ func compress(files []string, option string) {
 }
 
 func getCompiledAssets(filter *regexp.Regexp) (jsFiles []string, cssFiles []string) {
-	publicAssetPath := "public" + train.Config.AssetsUrl
+	publicAssetPath := train.Config.PublicPath + train.Config.AssetsUrl
 	filepath.Walk(publicAssetPath, func(filePath string, info os.FileInfo, err error) error {
 		fileExt := path.Ext(filePath)
 		if filter != nil && filter.Match([]byte(filePath)) {
@@ -190,7 +194,7 @@ func fingerPrintAssets() {
 			return
 		}
 
-		fpAssets[asset[6:]] = fpAsset[6:]
+		fpAssets[asset] = fpAsset
 	}
 
 	if err := train.WriteToManifest(fpAssets); err != nil {

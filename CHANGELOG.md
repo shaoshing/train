@@ -1,3 +1,8 @@
+# 2015-3-28
+
+* Use node-sass to instead Ruby Gem.
+* train command support --source option to custom AssetsPath
+
 # 2013-3-8
 
 * interpreter memory leaking problem solved

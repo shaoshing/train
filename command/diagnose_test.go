@@ -1,4 +1,4 @@
-package main
+package trainCommand
 
 import (
 	"github.com/shaoshing/gotest"
@@ -7,5 +7,5 @@ import (
 
 func TestDiagnose(t *testing.T) {
 	assert.Test = t
-	assert.True(diagnose())
+	assert.True(Diagnose())
 }

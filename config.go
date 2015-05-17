@@ -8,6 +8,8 @@ import (
 type config struct {
 	// The folder that contains JavaScript and StyleSheet files. It will use "assets" by default.
 	AssetsPath string
+	// Path to output assets compiled
+	PublicPath string
 	AssetsUrl  string
 	// Show verbose logs. For example, SASS warnings.
 	Verbose bool
@@ -24,7 +26,7 @@ type config struct {
 const (
 	DEVELOPMENT_MODE = "development"
 	PRODUCTION_MODE  = "production"
-	VERSION          = "0.1"
+	VERSION          = "0.1.1"
 )
 
 type sassConfig struct {
@@ -35,6 +37,7 @@ type sassConfig struct {
 var Config = config{
 	AssetsPath: "assets",
 	AssetsUrl:  "/assets/",
+	PublicPath: "public",
 	Mode:       DEVELOPMENT_MODE,
 }
 

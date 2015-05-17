@@ -7,8 +7,8 @@ Assets Management Package for web app in Go. The main purpose of it is to introd
 ## Main features
 
 * Organize assets with the [Include Directive](#include-directive).
-* [Pipeline](#pipeline) for [SASS](http://sass-lang.com/) and [CoffeeScript](coffeescript.org) in the runtime.
-* [Bundling and Fingerprinting Asserts](#bundling-and-fingerprinting-assets) for production.
+* [Pipeline](#pipeline) for [SASS](https://github.com/sass/sassc) and [CoffeeScript](coffeescript.org) in the runtime.
+* [Bundling and Fingerprinting Assets](#bundling-and-fingerprinting-assets) for production.
 
 ## Installation
 
@@ -22,6 +22,13 @@ Install the command-line tool:
 
 ```bash
 $ go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
+```
+
+Install [node-sass](https://github.com/sass/node-sass), [CoffeeCcript](http://coffeescript.org/)
+
+```bash
+$ npm install -g node-sass@2.0.1
+$ npm install -g coffee-script@1.6.2
 ```
 
 ### Prepare for the Pipeline feature
@@ -288,9 +295,9 @@ Checkout [its document](http://guides.rubyonrails.org/asset_pipeline.html#what-i
 
 There are two ways to deploy the Bundled and Fingerprinted assets to your server:
 
-1. Run the `train` command in the production server after each deployment. By doing this you can make sure to update public/assets to the latest. This is the simples way, but it requires your server have Ruby and required Gems if you are using the Pipeline feature.
+1. Run the `train` command in the production server after each deployment. By doing this you can make sure to update public/assets to the latest. This is the simples way, but it requires your server have NodeJS and required npm if you are using the Pipeline feature.
 
-2. Run the `train` command in your local machine and upload the assets to the production server. With this way, the production server doesn't need to have Ruby and required Gems for the command.
+2. Run the `train` command in your local machine and upload the assets to the production server. With this way, the production server doesn't need to have NodeJS and required npm for the command.
 
 Here is bash snippet to deploy assets using the second way:
 
@@ -322,8 +329,7 @@ Train is production ready, and has been used in our production site [Qortex](htt
 Tested language / lib versions:
 
 * Go: go1.2.1 darwin/amd64
-* Ruby: 1.9.3-p392
-* SASS: 3.3.8
+* node-sass: 2.0.1
 * CoffeeScript: 2.2.0
 
 ## Contribution
@@ -335,8 +341,7 @@ Tested language / lib versions:
 
 ### Run the tests
 
-* Install Go (1.2.1) and Ruby (1.9.3-p392)
-* Install required ruby gems for testing ``cd interpreter && bundle``
+* Install Go (1.2.1)
 * Run all the tests ``./test_all.sh``
 
 ## License

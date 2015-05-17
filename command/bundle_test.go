@@ -1,8 +1,8 @@
-package main
+package trainCommand
 
 import (
-	"github.com/shaoshing/gotest"
 	"github.com/shaoshing/train"
+	"github.com/shaoshing/gotest"
 	"io/ioutil"
 	"testing"
 )
@@ -60,18 +60,15 @@ require.css
 `)
 
 	assertEqual("public/assets/stylesheets/font.css", `h1 {
-  color: green; }
-`)
+  color: green; }`)
 	assertEqual("public/assets/stylesheets/app.css", `h1 {
   color: green; }
 
 h2 {
-  color: green; }
-`)
+  color: green; }`)
 
 	assertEqual("public/assets/stylesheets/scss.css", `h2 {
-  color: green; }
-`)
+  color: green; }`)
 
 	assertEqual("public/assets/javascripts/app.js", `(function() {
   var a;

@@ -1,18 +1,11 @@
 package interpreter
 
 import (
-	"bytes"
 	"errors"
-	"io/ioutil"
-	"net"
-	"os"
 	"os/exec"
 	"path"
-	"runtime"
-	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 type Interpreter struct {
@@ -26,9 +19,9 @@ var (
 )
 
 type config struct {
-	Verbose bool
+	Verbose    bool
 	AssetsPath string
-	SASS    struct {
+	SASS       struct {
 		DebugInfo   bool
 		LineNumbers bool
 	}
@@ -43,12 +36,38 @@ var Config = config{
 func Compile(filePath string) (result string, err error) {
 	fileExt := path.Ext(filePath)
 	switch fileExt {
-	case ".sass", ".scss", ".coffee":
-		content, e := ioutil.ReadFile(filePath)
-		if e != nil {
-			panic(err)
+	case ".sass", ".scss":
+		fileDir := path.Dir(filePath)
+		catCmd := exec.Command("cat", filePath)
+		opts := []string{"--output-style", "nested", "--indent-type", "space", "--indent-width", "2", "--linefeed", "lf"}
+
+		if Config.SASS.LineNumbers {
+			opts = append(opts, "--source-comments")
 		}
-		result, err = interpreter.Render(strings.Replace(fileExt, ".", "", 1), content)
+		if Config.SASS.DebugInfo {
+			opts = append(opts, "--source-comments")
+		}
+		if fileExt == ".sass" {
+			opts = append(opts, "--indented-syntax")
+		}
+		opts = append(opts, "--include-path", fileDir)
+		cmd := exec.Command("node-sass", opts...)
+
+		out, e := pipeExecCommand(catCmd, cmd)
+
+		result = strings.TrimSpace(string(out))
+		if e != nil {
+			err = errors.New("Could not compile sass: 'cat " + filePath + " | node-sass" +
+				strings.Join(opts, " ") + "' failed: " + e.Error())
+
+		}
+	case ".coffee":
+		out, e := exec.Command("coffee", "-p", filePath).CombinedOutput()
+		result = string(out)
+		if e != nil {
+			err = errors.New("Could not compile coffee: 'coffee -p " +
+				filePath + "' failed: " + e.Error())
+		}
 	default:
 		err = errors.New("Unsupported format (" + filePath + "). Valid formats are: sass.")
 	}
@@ -56,73 +75,22 @@ func Compile(filePath string) (result string, err error) {
 	return
 }
 
-func (this *Interpreter) Render(format string, content []byte) (result string, err error) {
-	this.Lock()
-	defer this.Unlock()
+func pipeExecCommand(cmds ...*exec.Cmd) ([]byte, error) {
+	for i, cmd := range cmds[:len(cmds)-1] {
+		out, err := cmd.StdoutPipe()
+		if err != nil {
+			return nil, err
+		}
+		cmd.Start()
+		cmds[i+1].Stdin = out
+	}
 
-	this.startRubyInterpreter()
-
-	conn, err := net.Dial("unix", this.SocketName)
+	ret, err := cmds[len(cmds)-1].Output()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	option := getOption()
-
-	conn.Write([]byte(format + "<<" + option + "<<" + string(content)))
-	var data bytes.Buffer
-	data.ReadFrom(conn)
-	conn.Close()
-
-	compiled := strings.Split(data.String(), "<<")
-
-	status := compiled[0]
-	result = compiled[1]
-
-	if status == "error" {
-		err = errors.New("Could not compile " + format + ":\n" + result)
-	}
-
-	return
-}
-
-func (this *Interpreter) startRubyInterpreter() {
-	if this.IsStarted() {
-		return
-	}
-
-	_, goFile, _, _ := runtime.Caller(0)
-	this.SocketName = generateUniqueSocketName()
-	currentPid := strconv.FormatInt(int64(os.Getpid()), 10)
-	this.cmd = exec.Command("ruby", path.Dir(goFile)+"/interpreter.rb", this.SocketName, currentPid, Config.AssetsPath)
-	waitForStarting := make(chan bool)
-	writer := &StdoutCapturer{waitForStarting}
-	this.cmd.Stdout = writer
-	this.cmd.Stderr = writer
-	err := this.cmd.Start()
-	if err != nil {
-		panic(err)
-	}
-	<-waitForStarting
-}
-
-func (this *Interpreter) IsStarted() bool {
-	return this.cmd != nil
-}
-
-type StdoutCapturer struct {
-	waitForStarting chan bool
-}
-
-func (this *StdoutCapturer) Write(p []byte) (int, error) {
-	if strings.Contains(string(p), "<<ready") {
-		this.waitForStarting <- true
-	}
-
-	if Config.Verbose {
-		return os.Stdout.Write(p)
-	}
-	return len(p), nil
+	return ret, nil
 }
 
 func getOption() string {
@@ -133,9 +101,4 @@ func getOption() string {
 		return "debug_info"
 	}
 	return ""
-}
-
-func generateUniqueSocketName() string {
-	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-	return "/tmp/train.interpreter." + timestamp + ".socket"
 }
