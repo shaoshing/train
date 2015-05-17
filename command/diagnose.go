@@ -20,7 +20,7 @@ func Diagnose() bool {
 	_, err = bash("node-sass --version")
 	if err != nil {
 		fmt.Println("-- SASS is disabled because the required npm is not found.")
-		fmt.Println("   (install it if you wish to use SASS: npm install -g node-sass)\n")
+		fmt.Println("   (install it if you wish to use SASS: npm install -g node-sass@2.0.1)\n")
 		allGood = false
 	} else {
 		_, err = interpreter.Compile(assetsPath + "/stylesheets/font.sass")
@@ -34,7 +34,7 @@ func Diagnose() bool {
 	_, err = bash("coffee -v")
 	if err != nil {
 		fmt.Println("-- CoffeeScript is disabled because the required npm is not found.")
-		fmt.Println("   (install it if you wish to use CoffeeScript : npm install -g coffee-script)")
+		fmt.Println("   (install it if you wish to use CoffeeScript : npm install -g coffee-script@1.6.2)")
 		allGood = false
 	} else {
 		_, err = interpreter.Compile(assetsPath + "/javascripts/app.coffee")
