@@ -21,7 +21,7 @@ $ go get github.com/shaoshing/train
 Install the command-line tool:
 
 ```bash
-$ go build -o $GOPATH/bin/train github.com/shaoshing/train/cmd
+$ go install github.com/shaoshing/train/train
 ```
 
 Install [node-sass](https://github.com/sass/node-sass), [CoffeeCcript](http://coffeescript.org/)
